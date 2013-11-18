@@ -1,0 +1,11 @@
+2007 mcarbonneaux
+	* mod_authmemcookie/1.0 - initial release
+
+2007 mcarbonneaux
+	* mod_authmemcookie/1.01 - bug fix in cookie name.
+
+2008-02-05 mcarbonneaux
+	* mod_authmemcookie/1.02 
+	* bug fix of Auth_memCookie_SessionTableSize to 8 any time...
+	* complete rewrite of match ip option to make possible to use it behind reverse proxy and to check x-forwarded or via http header in place of apache remote_ip.
+

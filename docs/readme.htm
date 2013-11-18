@@ -1,0 +1,308 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>memcached: a distributed memory object caching system</title>
+
+
+  <link rel="stylesheet" type="text/css" href="readme_files/memcached.css">
+
+</head>
+
+
+<body>
+
+<h1>Auth MemCookie</h1>
+
+<div class="linkbar">
+[<a href="http://authmemcookie.sourceforge.net/" class="barlink">About</a>]&nbsp;[<a href="https://sourceforge.net/project/showfiles.php?group_id=159430" class="barlink">Download</a>]
+</div>
+
+<h2>What is <tt class="mem"><span style="font-family: sans;">"Auth MemCookie</span></tt>"?</h2>
+
+"Auth MemCookie" are an Apache v2 authentification and authorization
+modules are based on "cookie" authentification mecanism.<br>
+
+<br>
+
+The module don't &nbsp;make authentification by it self, but verify
+if
+authentification "the&nbsp;cookie" are&nbsp;valid for each url
+protected by the module. The module validate also if&nbsp;the
+"authentificated user" have&nbsp;authorisation to
+acces&nbsp;url.<br>
+
+<br>
+
+Authentification are made externaly by an authentification form page
+and all authentification information nessary to the module a stored in
+memcached indentified by the cookie value "authentification session
+id"&nbsp;by this login page.<br>
+
+<h2>How it Works</h2>
+
+<h3>Phase 1 : The login Form</h3>
+
+<p>
+Authentification are made by a
+login formular page.</p>
+
+<p>This login page must&nbsp;authenticate the user with any
+authenticate source
+(ldap, /etc/password, file, database....) accessible to langage of the
+page (php, perl, java... an ldap login page sample in php are in
+samples directory).<br>
+
+<br>
+
+Then must set&nbsp;cookie that contain only a key
+the "authentification unique id" of the "authentification session".</p>
+
+<p>The login page must store authorisation and user information
+of the authenticated user in <a href="http://www.danga.com/memcached/">memcached</a>
+identified by the cookie key "authentification unique id".</p>
+
+<p>The
+login page can be developted in any langage you want, but must be
+capable to use memcached (they must have <a href="http://www.danga.com/memcached/apis.bml">memcache client api</a> for us)</p>
+
+<h3>Phase 2 : The Apache v2 Module</h3>
+
+After the user are logged, the apache 2 module check on each protected
+page&nbsp;by apache ACL&nbsp;the presence of the "cookie".<br>
+
+<br>
+
+if the "cookie" exist, try to get session in&nbsp;<a href="http://www.danga.com/memcached/">memcached</a>
+with the "cookie" value if not found return <span style="background-color: rgb(224, 224, 255); font-weight: bold;">"HTTP_UNAUTHORIZED"</span>
+page. <br>
+
+<br>
+
+if session exist in&nbsp;<a href="http://www.danga.com/memcached/">memcached</a>
+verify if acl match user session information if not match return
+<span style="background-color: rgb(224, 224, 255); font-weight: bold;">"HTTP_FORBIDDEN"</span>
+page.&nbsp;<br>
+
+<br>
+
+<h2>Session format stored in memcached</h2>
+
+<br>
+
+The session store in memcached are composed with multiple line in forme
+of <span style="background-color: rgb(224, 224, 255); font-weight: bold;">"name"</span>
+egual <span style="background-color: rgb(224, 224, 255); font-weight: bold;">"value"</span>
+ended by <span style="background-color: rgb(224, 224, 255); font-weight: bold;">"\r\n"</span>.
+some are mandatory, other are
+obtional and the reste are information only (all this field are
+transmited to the script langage protect the module).<br>
+
+<br>
+
+<pre class="example"><div class="exampletitle"> Session format :</div><span style="font-weight: bold;">UserName</span>=&lt;user name&gt;\r\n<br><span style="font-weight: bold;">Groups</span>=&lt;groupe name1&gt;:&lt;group name2&gt;:...\r\n<br><span style="font-weight: bold;">RemoteIP</span>=&lt;remote ip&gt;\r\n<br><span style="font-weight: bold;">Password</span>=&lt;password&gt;\r\n<br><span style="font-weight: bold;">Expiration</span>=&lt;expiration time&gt;\r\n<br><span style="font-weight: bold;">Email</span>=&lt;email&gt;\r\n<br><span style="font-weight: bold;">Name</span>=&lt;name&gt;\r\n<br><span style="font-weight: bold;">GivenName</span>=&lt;given name&gt;\r\n<br></pre>
+
+<div style="margin-left: 40px;">
+<ul>
+
+  <li><span style="font-weight: bold;">Username:</span>
+are
+mandatory.</li>
+
+  <li><span style="font-weight: bold;">Groups:</span>
+are
+mandatory, are used to check group in apache acl. if no
+group are know for the user, must be blank (Groups=\r\n)</li>
+
+  <li><span style="font-weight: bold;">RemoteIP:</span>
+are mandatory, used by remote ip check function in apache
+module.</li>
+
+</ul>
+
+<span style="font-weight: bold;"></span>
+<ul>
+
+  <li><span style="font-weight: bold;">Password:</span>
+are not mandatory, and is not recomanded to
+store in
+memcached for security reson, but if strored,&nbsp;is sended to the
+script language protected by the module.</li>
+
+</ul>
+
+<ul>
+
+  <li>The other field are information only, but they are sended
+to langage
+that are behind the module (via environement variable or http header).</li>
+
+</ul>
+
+<br>
+
+</div>
+
+The session fields size are for the moment limited to 10 fields by
+default.<br>
+
+<h2>Build dependency</h2>
+
+You must have compiled and installed :<br>
+
+<ul>
+
+  <li><a href="http://www.monkey.org/%7Eprovos/libevent/">libevent</a>
+used by memcached.</li>
+
+  <li><a href="http://www.danga.com/memcached/">memcached</a>
+the cache daemon it self.</li>
+
+  <li><a href="http://people.freebsd.org/%7Eseanc/libmemcache/">libmemcache</a>
+the C client API neaded to compile the Apache Module.</li>
+
+</ul>
+
+<h2>Compilation</h2>
+
+You must modify Makefile:<br>
+
+<ul>
+
+  <li>set correctly the MY_APXS varriable to point to the apache
+"apxs" scripts.</li>
+
+  <li>add the memcache library path in MY_LDFLAGS variable if
+nessesary (-L&lt;my memcache lib path&gt;)</li>
+
+</ul>
+
+<pre class="example"><div class="exampletitle">How to compile:</div>#make<br>#make install</pre>
+
+After that the "mod_auth_memcookie.so" are genereted in apache
+"modules" directory.<br>
+
+<h2>How to configure Apache Module</h2>
+
+<h3>Module configuration option:</h3>
+This option can be used in "location" or "directory" apache context.
+<small><span style="font-weight: bold;"></span></small>
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_Memcached_AddrPort</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Liste of ip or host
+adresse(s) and port&nbsp;':' separed of memcache(s) daemon to be
+used, coma separed.<br>
+
+</div>
+
+<pre class="example"><div class="exampletitle">For exemple: </div>host1:12000,host2:12000</pre>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_Memcached_SessionObject_ExpireTime</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Session object stored in
+memcached expiry time, in secondes. <br>
+
+Used only if "Auth_memCookie_Memcached_SessionObject_ExpiryReset" is
+set to on.<br>
+
+Set to 3600 seconds by default.</div>
+
+<ul>
+
+  <span style="font-weight: bold;">
+  </span><li><small><span style="font-weight: bold;">Auth_memCookie_Memcached_SessionObject_ExpiryReset</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'no' to not reset
+object expiry time in memcache on each url... set to yes by default</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_SessionTableSize</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Max number of element in
+session information table. set to 10 by default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_SetSessionHTTPHeader</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'yes' to set
+session information to http header of the authenticated users, set to
+no by default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_SetSessionHTTPHeaderEncode</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'yes' to mime64
+encode session information to http header, set to no by default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_CookieName</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Name of the cookie to used
+for check authentification, set to "AuthMemCookie" by default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_MatchIP_Mode</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to '0' to not check IP address set in cookie with the remote browser ip, set to '0' by default. </br>To check cookie ip adresse, Set to '1' to use 'X-Forwarded-For' http header, to '2' to use 'Via' http header, and to '3' to use apache remote_ip. 
+</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_GroupAuthoritative</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'no' to allow
+access control to be passed along to lower modules, for group acl
+check. set to 'yes' by default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_Authoritative</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'yes' to allow
+access control to be passed along to lower modules.Set to 'no' by
+default.</div>
+
+<ul>
+
+  <li><small><span style="font-weight: bold;">Auth_memCookie_SilmulateAuthBasic</span></small></li>
+
+</ul>
+
+<div style="margin-left: 40px;">Set to 'no' to not fix http header and auth_type for simulating auth basic for scripting language like php auth framework work (set PHP_AUTH_* $SERVER variable in php and apache REMOTE_USER and AUTH_TYPE vars)., set to 'yes' by default</div>
+
+<br>
+
+<h3>Sample to configure Apache v2 Module:</h3>
+
+<pre class="example"><div class="exampletitle">Configuration sample for using Auth_memcookie apache V2 module:</div><br>LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so<br><br>&lt;IfModule mod_auth_memcookie.c&gt;<br> &lt;Location /&gt;<br> Auth_memCookie_CookieName myauthcookie<br> Auth_memCookie_Memcached_AddrPort 127.0.0.1:11000<br><br style="font-weight: bold;"><span style="font-weight: bold;"> # to redirect unauthorized user to the login page</span><br> ErrorDocument 401 "/gestionuser/login.php"<br><br><span style="font-weight: bold;"> # to specify if the module are autoritative in this directory</span><br> Auth_memCookie_Authoritative on<br> <span style="font-weight: bold;"># must be set without that the refuse authentification</span><br> AuthType Cookie<br> <span style="font-weight: bold;"># must be set (apache mandatory) but not used by the module</span><br> AuthName "My Login"<br> &lt;/Location&gt;<br><br>&lt;/IfModule&gt;<br><br><span style="font-weight: bold;"># to protect juste user authentification</span><br>&lt;Location "/myprotectedurl"&gt;<br> require valid-user<br>&lt;/Location&gt;<br><br># to protect acces to user in group1<br>&lt;Location "/myprotectedurlgroup1"&gt;<br> require group group1<br>&lt;/Location&gt;<br><br></pre>
+
+</body>
+</html>
