@@ -8,4 +8,12 @@
 	* mod_authmemcookie/1.02 
 	* bug fix of Auth_memCookie_SessionTableSize to 8 any time...
 	* complete rewrite of match ip option to make possible to use it behind reverse proxy and to check x-forwarded or via http header in place of apache remote_ip.
-
+2014-11-10 mcarbonneaux
+	* mod_authmemcookie/1.1.0
+	* Correct handling pf "=" memcache session (E. Dumas).
+	* Don't breaks basic authentication (Steve Gaarder)
+	* multi users/groups require support
+	* no more memory leak when mc_aget2 return NULL
+	* apache 2.4 partial support (no use the new security model)
+	* some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
+	
