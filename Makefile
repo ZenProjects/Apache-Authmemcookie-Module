@@ -1,6 +1,6 @@
-MY_APXS=/usr/sbin/apxs2
-MY_LDFLAGS=-lmemcache -L/mnt/distributions/rpmbuilds/ste-1.0/ste-php/TMP/SFR-libmemcache-1.4.0.rc2-build/product/sfr-suse-addon/lib
-MY_CFLAGS=-I/mnt/distributions/rpmbuilds/ste-1.0/ste-php/TMP/SFR-libmemcache-1.4.0.rc2-build/product/sfr-suse-addon/include
+MY_APXS=/usr/sbin/apxs
+MY_LDFLAGS=-lmemcache -L/opt/srv/lib/libmemcache/lib/
+MY_CFLAGS=-I/opt/srv/lib/libmemcache/include
 
 .SUFFIXES: .c .o .la
 .c.la:

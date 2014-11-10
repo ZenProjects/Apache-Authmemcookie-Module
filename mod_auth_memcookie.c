@@ -202,7 +202,7 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
         szFieldTokenPos=NULL;
 	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "session field:%s",szField);
         szFieldName=strtok_r(szField,"=",&szFieldTokenPos);
-        szFieldValue=strtok_r(NULL,"=",&szFieldTokenPos);
+        szFieldValue=strtok_r(NULL,"\r\n",&szFieldTokenPos);
 	if (szFieldName!=NULL&&szFieldValue!=NULL) {
 	  /* add key and value in pMySession table */
 	  apr_table_set(pMySession,szFieldName,szFieldValue);
@@ -348,8 +348,8 @@ static int Auth_memCookie_check_cookie(request_rec *r)
 
     ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "AuthType are '%s'", ap_auth_type(r));
     unless(strncmp("Cookie",ap_auth_type(r),6)==0) {
-	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth type not specified has 'Cookie'");
-        return HTTP_UNAUTHORIZED;
+	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth type not specified as 'Cookie'");
+	return DECLINED;
     }
 
     unless(conf->szAuth_memCookie_CookieName) {
