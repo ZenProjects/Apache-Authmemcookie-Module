@@ -7,6 +7,14 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
 
+# News in this version (v1.1)
+
+  * Correct handling pf "=" memcache session (E. Dumas).
+	* Don't breaks basic authentication (Steve Gaarder)
+	* multi users/groups require support
+	* no more memory leak when mc_aget2 return NULL
+	* apache 2.4 partial support (no use the new security model)
+	* some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
 
 # Build dependency
 
