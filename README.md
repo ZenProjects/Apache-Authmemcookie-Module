@@ -9,7 +9,7 @@ Authentication is made externally by an Authentication html form page and all Au
 
 # News in this version (v1.1)
 
-* Correct handling pf "=" memcache session (E. Dumas).
+* Correct handling of "=" in value of the memcache session (E. Dumas).
 * Don't breaks basic authentication (Steve Gaarder)
 * multi users/groups require support
 * no more memory leak when mc_aget2 return NULL
