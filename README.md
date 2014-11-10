@@ -7,3 +7,4 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
 
+the documentation is here: http://authmemcookie.sourceforge.net/
