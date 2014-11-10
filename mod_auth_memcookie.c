@@ -486,13 +486,15 @@ static int Auth_memCookie_check_auth(request_rec *r)
         } 
 	 /* check the required user */ 
 	else if (!strcmp("user",szRequire_cmd)) {
-	    szUser = ap_getword_conf(r->pool, &szRequireLine);
-	    if (strcmp(szMyUser, szUser)) {
-                ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "the user logged '%s' are not the user required '%s'",szMyUser,szUser);
-                return HTTP_FORBIDDEN;
-            }
-	    ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' is authorized",szMyUser);
-	    return OK;
+	    while (szRequireLine[0]) {
+	      szUser = ap_getword_conf(r->pool, &szRequireLine);
+	      if (strcmp(szMyUser, szUser)) {
+		continue;
+	      } else {
+		ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "the user logged '%s' is not authorized",szMyUser);
+		return HTTP_FORBIDDEN;
+	      }
+	    }
         }
         else if (!strcmp("group",szRequire_cmd)) {
             szGroups=(char*)apr_table_get(pAuthSession,"Groups");
