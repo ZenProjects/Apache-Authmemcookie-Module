@@ -43,8 +43,7 @@ All the documentation are here: http://authmemcookie.sourceforge.net/
 
 https://github.com/openSUSE/apache2-mod_auth_memcookie
 
-- this fork seam to  done by opensuse team
-
+* this fork seam to  done by opensuse team
 * ported the code to libmemcached.
 * made sure that the session data contains no \r or \n.
 * made sure that the cookie is a valid md5sum.
