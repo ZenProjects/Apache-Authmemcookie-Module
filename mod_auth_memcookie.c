@@ -294,6 +294,7 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
 {
     strAuth_memCookie_config_rec *conf=NULL;
     request_rec *r=(request_rec*)rec;
+    char *szB64_enc_string=NULL;
     char *szHeaderName=apr_pstrcat(r->pool,"X-MCAC_",szKey,NULL);
 
     /* get apache config */
@@ -301,7 +302,7 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
 
     if (conf->nAuth_memCookie_SetSessionHTTPHeaderEncode) {
       /* alloc memory for the estimated encode size of the string */
-      char *szB64_enc_string=(char*)apr_palloc(r->pool,apr_base64_encode_len(strlen(szValue))+1);
+      szB64_enc_string=(char*)apr_palloc(r->pool,apr_base64_encode_len(strlen(szValue))+1);
       unless (szB64_enc_string) {
 	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "memory alloc for encoding http header failed!");
 	return 0;
