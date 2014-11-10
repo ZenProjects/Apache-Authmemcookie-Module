@@ -471,28 +471,26 @@ static int Auth_memCookie_check_auth(request_rec *r)
 
     /* walk throug the array to check eatch require command */
     for (x = 0; x < reqs_arr->nelts; x++) {
+      if (!(reqs[x].method_mask & (AP_METHOD_BIT << m)))
+	  continue;
 
-        if (!(reqs[x].method_mask & (AP_METHOD_BIT << m)))
-            continue;
+      /* get require line */
+      szRequireLine = reqs[x].requirement;
+      ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "Require Line is '%s'", szRequireLine);
 
-        /* get require line */
-        szRequireLine = reqs[x].requirement;
-	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "Require Line is '%s'", szRequireLine);
+      /* get the first word in require line */
+      szRequire_cmd = ap_getword_white(r->pool, &szRequireLine);
+      ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd is '%s'", szRequire_cmd);
 
-        /* get the first word in require line */
-        szRequire_cmd = ap_getword_white(r->pool, &szRequireLine);
-	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd is '%s'", szRequire_cmd);
-
-        /* if require cmd are valid-user, they are already authenticated (session cookie found) then allow and return OK */
-        if (!strcmp("valid-user",szRequire_cmd)) {
-	 ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd valid-user");
-            return OK;
-        } 
-	 /* check the required user */ 
-	else if (!strcmp("user",szRequire_cmd)) {
+      if (szRequire_cmd) {
+	/* if require cmd are valid-user, they are already authenticated (session cookie found) then allow and return OK */
+	if (!strcmp("valid-user",szRequire_cmd)) {
+	    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd valid-user");
+	    return OK;
+	} else if (!strcmp("user",szRequire_cmd)) { /* check the required users */ 
 	    szUser=NULL;
 	    while (*szRequireLine && (szUser = ap_getword_conf(r->pool, &szRequireLine))) {
-              if (szUser==NULL) {
+	      if (szUser==NULL) {
 		ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in user", szMyUser);
 		continue;
 	      }
@@ -502,21 +500,21 @@ static int Auth_memCookie_check_auth(request_rec *r)
 		return OK;
 	      }
 	    }
-        }
-        else if (!strcmp("group",szRequire_cmd)) {
+	} else if (!strcmp("group",szRequire_cmd)) { /* check the required groups */
 	    szGroups=NULL;
-            while(*szRequireLine && (szGroup = ap_getword_white(r->pool, &szRequireLine))) {
-               if (szGroups==NULL) {
-                   ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in group", szMyUser);
-                   continue;
-               }
-               ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check group '%s' in '%s'",szGroup,szGroups);
-               if (get_Auth_memCookie_grp(r, szGroup, szGroups)==OK) {
-                   ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' as the good group %s and is authorized",szMyUser,szGroup);
-                   return OK;
-               }
-            }
-        }
+	    while(*szRequireLine && (szGroup = ap_getword_white(r->pool, &szRequireLine))) {
+	       if (szGroups==NULL) {
+		   ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in group", szMyUser);
+		   continue;
+	       }
+	       ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check group '%s' in '%s'",szGroup,szGroups);
+	       if (get_Auth_memCookie_grp(r, szGroup, szGroups)==OK) {
+		   ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' as the good group %s and is authorized",szMyUser,szGroup);
+		   return OK;
+	       }
+	    }
+	}
+      }
     }
 
     ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' not authorized",szMyUser);
