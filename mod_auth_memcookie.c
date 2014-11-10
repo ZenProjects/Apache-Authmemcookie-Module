@@ -180,7 +180,7 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
 
     /* add memcached servers from szMemcached_addr who contain host:port server adresse/port separed with coma */
     szTokenPos=NULL;
-    for(szServer= strtok_r(szMemcached_addr, szSeparator, &szTokenPos) ; szServer!=NULL; szServer=strtok_r(NULL," \t",&szTokenPos)) {
+    for(szServer= apr_strtok(szMemcached_addr, szSeparator, &szTokenPos) ; szServer!=NULL; szServer=apr_strtok(NULL," \t",&szTokenPos)) {
       if ((mc_err=mc_server_add4(mc_session,( mc_const char *) szServer))!=0) {
 	 ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "mc_server_add4 failed to add server: '%s' errcode=%d",szServer,mc_err);
 	 return NULL;
@@ -202,11 +202,11 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     /* szValue is formated multi line (\r\n) with name=value on each line */
     /* must containe UserName,Groups,RemoteIP fieldname */
     szTokenPos=NULL;
-    for(szField=strtok_r(szMyValue,"\r\n",&szTokenPos);szField;szField=strtok_r(NULL,"\r\n",&szTokenPos)) {
+    for(szField=apr_strtok(szMyValue,"\r\n",&szTokenPos);szField;szField=apr_strtok(NULL,"\r\n",&szTokenPos)) {
         szFieldTokenPos=NULL;
 	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "session field:%s",szField);
-        szFieldName=strtok_r(szField,"=",&szFieldTokenPos);
-        szFieldValue=strtok_r(NULL,"\r\n",&szFieldTokenPos);
+        szFieldName=apr_strtok(szField,"=",&szFieldTokenPos);
+        szFieldValue=apr_strtok(NULL,"\r\n",&szFieldTokenPos);
 	if (szFieldName!=NULL&&szFieldValue!=NULL) {
 	  /* add key and value in pMySession table */
 	  apr_table_set(pMySession,szFieldName,szFieldValue);
