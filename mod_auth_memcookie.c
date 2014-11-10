@@ -350,8 +350,11 @@ static int Auth_memCookie_check_cookie(request_rec *r)
     ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "AuthType are '%s'", ap_auth_type(r));
     unless(strncmp("Cookie",ap_auth_type(r),6)==0) {
 	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "Auth type not specified as 'Cookie'");
-	return DECLINED;
+	return DECLINED; //IIG: Allow basic auth to be set
     }
+
+    // cookie found the user is authentified
+    apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
 
     unless(conf->szAuth_memCookie_CookieName) {
 	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "No Auth_memCookie_CookieName specified");
@@ -453,9 +456,10 @@ static int Auth_memCookie_check_auth(request_rec *r)
     unless(conf->nAuth_memCookie_GroupAuthoritative)
         return DECLINED;
 
+    // no cookie session validated go in next auth check stage (DECLINED)
     if((tRetStatus=apr_pool_userdata_get((void**)&pAuthSession,"SESSION",r->pool))) {
         ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r,ERRTAG "apr_pool_userdata_get Apr Error: %d", tRetStatus);
-        return HTTP_FORBIDDEN;
+        return DECLINED;
     }
 
     /* get require line */
@@ -479,7 +483,7 @@ static int Auth_memCookie_check_auth(request_rec *r)
         szRequire_cmd = ap_getword_white(r->pool, &szRequireLine);
 	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd is '%s'", szRequire_cmd);
 
-        /* if require cmd are valid-user, they are already authenticated than allow and return OK */
+        /* if require cmd are valid-user, they are already authenticated (session cookie found) then allow and return OK */
         if (!strcmp("valid-user",szRequire_cmd)) {
 	 ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG "Require Cmd valid-user");
             return OK;
