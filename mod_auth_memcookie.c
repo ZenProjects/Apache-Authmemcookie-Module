@@ -486,31 +486,32 @@ static int Auth_memCookie_check_auth(request_rec *r)
         } 
 	 /* check the required user */ 
 	else if (!strcmp("user",szRequire_cmd)) {
-	    while (szRequireLine[0]) {
-	      szUser = ap_getword_conf(r->pool, &szRequireLine);
-	      if (strcmp(szMyUser, szUser)) {
+	    szUser=NULL;
+	    while (*szRequireLine && (szUser = ap_getword_conf(r->pool, &szRequireLine))) {
+              if (szUser==NULL) {
+		ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in user", szMyUser);
 		continue;
-	      } else {
-		ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "the user logged '%s' is not authorized",szMyUser);
-		return HTTP_FORBIDDEN;
+	      }
+	      ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check user '%s' vs '%s'",szUser,szMyUser);
+	      if (strcmp(szMyUser, szUser)) {
+		ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' is authorized",szMyUser);
+		return OK;
 	      }
 	    }
         }
         else if (!strcmp("group",szRequire_cmd)) {
-            szGroups=(char*)apr_table_get(pAuthSession,"Groups");
-	    szGroup = ap_getword_white(r->pool, &szRequireLine);
-	    ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check group '%s' in '%s'",szGroup,szGroups);
-	    if (szGroups==NULL) { 
-                ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in group", szMyUser);
-                return HTTP_FORBIDDEN;
-	    }
-	
-	    if (get_Auth_memCookie_grp(r, szGroup, szGroups)!=OK) {
-                ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in right group", szMyUser);
-                return HTTP_FORBIDDEN;
+	    szGroups=NULL;
+            while(*szRequireLine && (szGroup = ap_getword_white(r->pool, &szRequireLine))) {
+               if (szGroups==NULL) {
+                   ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r ,ERRTAG  "user %s not in group", szMyUser);
+                   continue;
+               }
+               ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check group '%s' in '%s'",szGroup,szGroups);
+               if (get_Auth_memCookie_grp(r, szGroup, szGroups)==OK) {
+                   ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' as the good group %s and is authorized",szMyUser,szGroup);
+                   return OK;
+               }
             }
-	    ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' as the good group %s and is authorized",szMyUser,szGroup);
-	    return OK;
         }
     }
 
