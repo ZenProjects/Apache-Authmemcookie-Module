@@ -43,4 +43,25 @@ All the documentation are here: http://authmemcookie.sourceforge.net/
 
 https://github.com/openSUSE/apache2-mod_auth_memcookie
 
+- this fork seam to  done by opensuse team
+
+* ported the code to libmemcached.
+* made sure that the session data contains no \r or \n.
+* made sure that the cookie is a valid md5sum.
+* added Auth_memCookie_SessionHeaders option to specify which headers should be cleared from the input headers and taken from the session data.
+* added szAuth_memCookie_AuthentificationURI to configure that the session is created by doing a subrequest to the specfied
+* URI and using the returned headers (uses the configured SessionHeaders).
+* added Auth_memCookie_AuthentificationHeader option to tell the module that it can take the user name from the specified header when it creates the session.
+* added Auth_memCookie_AuthentificationURIOnlyAuth to make it * just run the authentification steps for the subrequest (data is taken from the input headers in that case).
+* added Auth_memCookie_CookieDomain to specify a domain for the session cookie.
+* added Auth_memCookie_AllowAnonymous to specify that no session is required for the request.
+* added Auth_memCookie_CommandHeader to specify a way to issue commands for session managemant: "login" makes it ignore the AllowAnonymous flag, "logout" deletes the session. 
+
 https://github.com/richp10/apache2-mod_auth_memcookie-1.0.3
+
+- apache 2.4
+- PAtched version of libmemcached that fixes Apache error: undefined symbol: mcm_buf_len
+
+http://search.cpan.org/~piers/Apache-Auth-AuthMemCookie-0.02/lib/Apache/Auth/AuthMemCookie.pm
+
+- perl version !
