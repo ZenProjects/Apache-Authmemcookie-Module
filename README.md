@@ -26,6 +26,8 @@ You must have compiled and installed:
 
 - [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) the C client API needed to compile the Apache Module.
 
+> **Attention:** Don't mix up `libmemcache` and `libmemcached`!
+
 # Compilation
 
 You must modify Makefile:
