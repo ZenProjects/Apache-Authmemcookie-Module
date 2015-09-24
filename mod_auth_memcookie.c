@@ -504,7 +504,7 @@ static int Auth_memCookie_check_auth(request_rec *r)
 		continue;
 	      }
 	      ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "check user '%s' vs '%s'",szUser,szMyUser);
-	      if (strcmp(szMyUser, szUser)) {
+	      if (!strcmp(szMyUser, szUser)) {
 		ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,ERRTAG  "the user logged '%s' is authorized",szMyUser);
 		return OK;
 	      }
