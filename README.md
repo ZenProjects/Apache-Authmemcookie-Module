@@ -47,7 +47,7 @@ After that the "mod_auth_memcookie.so" is generated in apache "modules" director
 
 #Documentation
 
-All the documentation are here: http://authmemcookie.sourceforge.net/
+All the documentation are here: http://zenprojects.github.io/Apache-Authmemcookie-Module/
 
 # Fork
 
