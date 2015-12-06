@@ -16,35 +16,6 @@ Authentication is made externally by an Authentication html form page and all Au
 * apache 2.4 partial support (no use the new security model)
 * some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
 
-# Build dependency
-
-You must have compiled and installed:
-
-- [libevent](http://libevent.org/) use by [memcached](http://memcached.org/).
-
-- [memcached](http://memcached.org/) the cache daemon it self.
-
-- [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) the C client API needed to compile the Apache Module.
-
-> **Attention:** Don't mix up `libmemcache` and `libmemcached`!
-
-# Compilation
-
-You must modify Makefile:
-
-- Set correctly the MY_APXS variable to point to the apache "apxs" scripts.
-
-- Add the memcache library path in MY_LDFLAGS variable if necessary (-L<my memcache lib path>)
-
-How to compile:
-
-```
-# make
-# make install
-```
-
-After that the "mod_auth_memcookie.so" is generated in apache "modules" directory.
-
 #Documentation
 
 All the documentation are here: http://zenprojects.github.io/Apache-Authmemcookie-Module/
