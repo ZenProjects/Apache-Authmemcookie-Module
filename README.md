@@ -7,6 +7,8 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
 
+[Link to original doc](http://htmlpreview.github.io/?https://github.com/ZenProjects/Apache-Authmemcookie-Module/blob/master/docs/readme.htm)
+
 # News in this version (v1.1)
 
 * Correct handling of "=" in value of the memcache session (E. Dumas).
