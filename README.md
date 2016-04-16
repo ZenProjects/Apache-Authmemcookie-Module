@@ -21,7 +21,7 @@ Authentication is made externally by an Authentication html form page and all Au
 
 All the documentation are [here](http://zenprojects.github.io/Apache-Authmemcookie-Module/)
 
-[Link to original doc](http://htmlpreview.github.io/?https://github.com/ZenProjects/Apache-Authmemcookie-Module/blob/master/docs/readme.htm)
+[Link to original doc](http://htmlpreview.github.io/?https://github.com/ZenProjects/Apache-Authmemcookie-Module/blob/master/docs/readme.html)
 
 # Fork
 
