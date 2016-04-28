@@ -1,7 +1,6 @@
-#MY_APXS=/usr/sbin/apxs
-MY_APXS=/opt/srv/httpd/bin/apxs
-MY_LDFLAGS=-lmemcache -L/opt/srv/lib/libmemcache/lib/
-MY_CFLAGS=-I/opt/srv/lib/libmemcache/include
+MY_APXS=/usr/sbin/apxs
+MY_LDFLAGS=-lmemcache 
+MY_CFLAGS=
 
 .SUFFIXES: .c .o .la
 .c.la:
