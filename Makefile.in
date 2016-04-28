@@ -1,0 +1,19 @@
+MODULE_NAME=mod_auth_memcookie
+APXS=@APXS@
+LDFLAGS_LIBMEMCACHE=-lmemcache -L@LIBMEMCACHE_DIR@/lib
+CFLAGS_LIBMEMCACHE=-I@LIBMEMCACHE_DIR@/include
+
+all: $(MODULE_NAME).la
+
+$(MODULE_NAME).la: $(MODULE_NAME).c
+	$(APXS) $(LDFLAGS_LIBMEMCACHE) $(CFLAGS_LIBMEMCACHE) -c $(MODULE_NAME).c
+
+install: $(MODULE_NAME).la
+	$(APXS) -i -n $(MODULE_NAME) $(MODULE_NAME).la
+
+clean:
+	-rm -f $(MODULE_NAME).o $(MODULE_NAME).lo $(MODULE_NAME).la $(MODULE_NAME).slo 
+	-rm -rf autom4te.cache .libs 
+
+distclean: clean
+	-rm -f config.log config.status Makefile 
