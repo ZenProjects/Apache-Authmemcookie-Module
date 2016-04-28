@@ -7,6 +7,28 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
 
+# Compilation
+
+user make with MY_ macro as arguments to specify where to find libmemcache and Apache httpd apxs developper tool
+```
+# make MY_APXS=/path/to/apache/httpd/bin/apxs MY_LDFLAGS="-lmemcache -L/path/to/libmemcache/lib/" MY_CFLAGS=-I/path/to/libmemcache/include
+# make install
+```
+
+or change to macro in Makefile
+```
+MY_APXS=/path/to/apache/httpd/bin/apxs
+MY_LDFLAGS="-lmemcache -L/path/to/libmemcache/lib/"
+MY_CFLAGS=-I/path/to/libmemcache/include
+```
+
+and after simply do 
+
+```
+# make
+# make install
+```
+
 
 # News in this version (v1.1)
 
