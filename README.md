@@ -7,7 +7,23 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
 
-# Compilation
+- All the documentation are [here](http://zenprojects.github.io/Apache-Authmemcookie-Module/)
+- And the old original documentation are [here](http://htmlpreview.github.io/?https://github.com/ZenProjects/Apache-Authmemcookie-Module/blob/master/docs/readme.html)
+
+
+# Build dependency
+
+You must have compiled and installed:
+
+- [libevent](http://libevent.org/) use by [memcached](http://memcached.org/).
+
+- [memcached](http://memcached.org/) the cache daemon it self.
+
+- [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) the C client API needed to compile the Apache Module.
+
+> **Attention:** Don't mix up `libmemcache` and `libmemcached`!
+
+# How to build
 
 ```
 # ./configure --with-apxs=/path/to/apache/httpd/bin/apxs --with-libmemcache=/path/to/libmemcache/
@@ -23,12 +39,6 @@ Authentication is made externally by an Authentication html form page and all Au
 * no more memory leak when mc_aget2 return NULL
 * apache 2.4 partial support (no use the new security model)
 * some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
-
-#Documentation
-
-All the documentation are [here](http://zenprojects.github.io/Apache-Authmemcookie-Module/)
-
-[Link to original doc](http://htmlpreview.github.io/?https://github.com/ZenProjects/Apache-Authmemcookie-Module/blob/master/docs/readme.html)
 
 # Fork
 
