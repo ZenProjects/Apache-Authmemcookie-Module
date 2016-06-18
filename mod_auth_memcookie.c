@@ -37,7 +37,7 @@
 #include "http_request.h"   /* for ap_hook_(check_user_id | auth_checker)*/
 #include "apr_base64.h"
 
-#include "memcache.h"
+#include "libmemcached-1.0/memcached.h"
 
 
 #define ERRTAG "Auth_memCookie: "
@@ -49,7 +49,7 @@ module AP_MODULE_DECLARE_DATA mod_auth_memcookie_module;
 
 /* config structure */
 typedef struct {
-    char *	szAuth_memCookie_memCached_addr;
+    char *	szAuth_memCookie_memCached_Configuration;
     apr_time_t 	tAuth_memCookie_MemcacheObjectExpiry;
     int 	nAuth_memCookie_MemcacheObjectExpiryReset;
 
@@ -149,9 +149,13 @@ static void fix_headers_in(request_rec *r,char*szPassword)
 /* get session with szCookieValue key from memcached server */
 static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie_config_rec *conf, char *szCookieValue)
 {
-    char *szMemcached_addr=conf->szAuth_memCookie_memCached_addr;
+    char *szMemcached_Configuration=conf->szAuth_memCookie_memCached_Configuration;
     apr_time_t tExpireTime=conf->tAuth_memCookie_MemcacheObjectExpiry;
-    struct memcache *mc_session=NULL;
+
+    memcached_st *memc=NULL;
+    uint32_t flags=0;
+    memcached_return_t rc;
+
     apr_table_t *pMySession=NULL;
     size_t nGetKeyLen=strlen(szCookieValue);
     size_t nGetLen=0;
@@ -164,11 +168,10 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     char *szFieldValue;
     char *szMyValue;
     char *szSeparator=", \t";
-    int mc_err=0;
     int nbInfo=0;
     
     /* init memcache lib */
-    unless(mc_session=mc_new()) {
+    unless(memc=memcached(szMemcached_Configuration,strlen(szMemcached_Configuration))) {
 	 ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "memcache lib init failed");
 	 return NULL;
     }
@@ -178,20 +181,10 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
        return NULL;
     }
 
-    /* add memcached servers from szMemcached_addr who contain host:port server adresse/port separed with coma */
-    szTokenPos=NULL;
-    for(szServer= apr_strtok(szMemcached_addr, szSeparator, &szTokenPos) ; szServer!=NULL; szServer=apr_strtok(NULL," \t",&szTokenPos)) {
-      if ((mc_err=mc_server_add4(mc_session,( mc_const char *) szServer))!=0) {
-	 ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "mc_server_add4 failed to add server: '%s' errcode=%d",szServer,mc_err);
-	 return NULL;
-      }
-         
-    }
-
     /* get value for the key 'szCookieValue' in memcached server */
-    unless(szValue=(char*)mc_aget2(mc_session,szCookieValue,nGetKeyLen,&nGetLen)) {
-       mc_free(mc_session);
-       ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "mc_aget2 failed to found key '%s'",szCookieValue);
+    unless(szValue=(char*)memcached_get(memc,szCookieValue,nGetKeyLen,&nGetLen,&flags,&rc)) {
+       memcached_free(memc);
+       ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "memcached_get failed to found key '%s'",szCookieValue);
        return NULL;
     }
 
@@ -237,17 +230,17 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
 
     /* reset expire time */
     if (conf->nAuth_memCookie_MemcacheObjectExpiryReset&&pMySession) {
-     if ((mc_err=mc_set(mc_session,szCookieValue,nGetKeyLen,szValue,nGetLen,tExpireTime,0))) {
-       ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r,ERRTAG  "Expire time with mc_set (key:%s) failed with errcode=%d",szCookieValue,mc_err);
+     if ((rc=memcached_set(memc,szCookieValue,nGetKeyLen,szValue,nGetLen,tExpireTime,flags))) {
+       ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r,ERRTAG  "Expire time with memcached_set (key:%s) failed with errcode=%d",szCookieValue,memcached_last_error_message(memc));
        pMySession=NULL;
      }
     }
 
-    /* free aget2 retruned valued */
+    /* free memcached_get retruned valued */
     if (!szValue) free(szValue);
 
-    /* free the mc session */
-    mc_free(mc_session);
+    /* free the libmemcached session */
+    memcached_free(memc);
     
     /* set the good username found in request structure */
     if (pMySession!=NULL&&apr_table_get(pMySession,"UserName")!=NULL) r->user=(char*)apr_table_get(pMySession,"UserName");
@@ -364,11 +357,11 @@ static int Auth_memCookie_check_cookie(request_rec *r)
         return HTTP_UNAUTHORIZED;
     }
 
-    unless(conf->szAuth_memCookie_memCached_addr) {
+    unless(conf->szAuth_memCookie_memCached_Configuration) {
 	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, ERRTAG "No Auth_memCookie_Memcached_AddrPort specified");
         return HTTP_UNAUTHORIZED;
     }
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "Memcached server(s) adresse(s) are %s",conf->szAuth_memCookie_memCached_addr);
+    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,ERRTAG  "Memcached server(s) adresse(s) are %s",conf->szAuth_memCookie_memCached_Configuration);
 
     /* get cookie who are named szAuth_memCookie_CookieName */
     unless(szCookieValue = extract_cookie(r, conf->szAuth_memCookie_CookieName))
@@ -548,7 +541,7 @@ static void *create_Auth_memCookie_dir_config(apr_pool_t *p, char *d)
 {
     strAuth_memCookie_config_rec *conf = apr_palloc(p, sizeof(*conf));
 
-    conf->szAuth_memCookie_memCached_addr = apr_pstrdup(p,"127.0.0.1:11211");
+    conf->szAuth_memCookie_memCached_Configuration = apr_pstrdup(p,"--SERVER=127.0.0.1:11211");
     conf->szAuth_memCookie_CookieName = apr_pstrdup(p,"AuthMemCookie");
     conf->tAuth_memCookie_MemcacheObjectExpiry = 3600; /* memcache object expire time, 1H by default */
     conf->nAuth_memCookie_MemcacheObjectExpiryReset = 1;  /* fortress is secure by default, reset object expire time in memcache by default */
@@ -601,9 +594,9 @@ static const char *cmd_MatchIP_Mode(cmd_parms *cmd, void *InDirConf, const char 
 /* apache config fonction of the module */
 static const command_rec Auth_memCookie_cmds[] =
 {
-    AP_INIT_TAKE1("Auth_memCookie_Memcached_AddrPort", ap_set_string_slot,
-     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_memCached_addr),
-     OR_AUTHCFG, "ip or host adressei(s) and port (':' separed) of memcache(s) daemon to be used, coma separed"),
+    AP_INIT_TAKE1("Auth_memCookie_Memcached_Configuration", ap_set_string_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_memCached_Configuration),
+     OR_AUTHCFG, "libmemcached configuration - http://docs.libmemcached.org/libmemcached_configuration.html"),
     AP_INIT_TAKE1("Auth_memCookie_Memcached_SessionObject_ExpireTime", ap_set_int_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, tAuth_memCookie_MemcacheObjectExpiry),
      OR_AUTHCFG, "Session object in memcached expiry time, in secondes."),

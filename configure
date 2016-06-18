@@ -600,8 +600,8 @@ PACKAGE_BUGREPORT=
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-LIBMEMCACHE_DIR
 APXS
+LIBMEMCACHED_DIR
 EGREP
 GREP
 CPP
@@ -652,8 +652,8 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_libmemcached
 with_apxs
-with_libmemcache
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1282,8 +1282,8 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-libmemcached=DIR  libmemcached directory - http://libmemcached.org/
   --with-apxs=EXE         Apache2 apxs script
-  --with-libmemcache=DIR  libmemcache directory - https://people.freebsd.org/~seanc/libmemcache/
 
 Some influential environment variables:
   CC          C compiler command
@@ -1732,11 +1732,6 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-
-
-
 
 
 ac_ext=c
@@ -3225,6 +3220,42 @@ fi
 
 
 
+# Check whether --with-libmemcached was given.
+if test "${with_libmemcached+set}" = set; then
+  withval=$with_libmemcached;
+else
+  with_libmemcached="no"
+
+fi
+
+
+  { $as_echo "$as_me:$LINENO: checking for libmemcached library" >&5
+$as_echo_n "checking for libmemcached library... " >&6; }
+
+  if test "$with_libmemcached" = "no"; then
+    { { $as_echo "$as_me:$LINENO: error: Specify where is the libmemcached directory using --with-libmemcached" >&5
+$as_echo "$as_me: error: Specify where is the libmemcached directory using --with-libmemcached" >&2;}
+   { (exit 1); exit 1; }; }
+  else
+    LIBMEMCACHED_INCLUDE_DIR=$with_libmemcached/include
+    LIBMEMCACHED_LIB_DIR=$with_libmemcached/lib
+    # make sure that a well known include file exists
+    if test -e $LIBMEMCACHED_INCLUDE_DIR/libmemcached-1.0/memcached.h && test -d $LIBMEMCACHED_LIB_DIR; then
+      { $as_echo "$as_me:$LINENO: result: found!" >&5
+$as_echo "found!" >&6; }
+    else
+      { { $as_echo "$as_me:$LINENO: error: $with_libmemcached not found. " >&5
+$as_echo "$as_me: error: $with_libmemcached not found. " >&2;}
+   { (exit 1); exit 1; }; }
+    fi
+    LIBMEMCACHED_DIR=$with_libmemcached
+  fi
+
+
+
+
+
+
 # Check whether --with-apxs was given.
 if test "${with_apxs+set}" = set; then
   withval=$with_apxs;
@@ -3253,41 +3284,6 @@ $as_echo "$as_me: error: $with_apxs not found. " >&2;}
    { (exit 1); exit 1; }; }
     fi
     APXS=$with_apxs
-  fi
-
-
-
-
-
-# Check whether --with-libmemcache was given.
-if test "${with_libmemcache+set}" = set; then
-  withval=$with_libmemcache;
-else
-  with_libmemcache="no"
-
-fi
-
-
-  { $as_echo "$as_me:$LINENO: checking for libmemcache library" >&5
-$as_echo_n "checking for libmemcache library... " >&6; }
-
-  if test "$with_libmemcache" = "no"; then
-    { { $as_echo "$as_me:$LINENO: error: Specify where is the libmemcache directory using --with-libmemcache" >&5
-$as_echo "$as_me: error: Specify where is the libmemcache directory using --with-libmemcache" >&2;}
-   { (exit 1); exit 1; }; }
-  else
-    LIBMEMCACHE_INCLUDE_DIR=$with_libmemcache/include
-    LIBMEMCACHE_LIB_DIR=$with_libmemcache/lib
-    # make sure that a well known include file exists
-    if test -e $LIBMEMCACHE_INCLUDE_DIR/memcache.h && test -d $LIBMEMCACHE_LIB_DIR; then
-      { $as_echo "$as_me:$LINENO: result: found!" >&5
-$as_echo "found!" >&6; }
-    else
-      { { $as_echo "$as_me:$LINENO: error: $with_libmemcache not found. " >&5
-$as_echo "$as_me: error: $with_libmemcache not found. " >&2;}
-   { (exit 1); exit 1; }; }
-    fi
-    LIBMEMCACHE_DIR=$with_libmemcache
   fi
 
 
