@@ -41,7 +41,7 @@
 
 
 #define ERRTAG "Auth_memCookie: "
-#define VERSION "1.1.0"
+#define VERSION "1.2.0"
 #define unless(c) if(!(c))
 
 /* apache module name */
