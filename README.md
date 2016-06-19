@@ -27,17 +27,17 @@ You must have compiled and installed:
 # make install
 ```
 
-# News in this version (v2.0)
+# News in v2.0
 
 * real apache 2.3/2.4 authn model support
 * fix in http header sending
 * support for setting prefix http header other that "MCAC_"
 
-# News in this version (v1.2)
+# News in v1.2
 
 * migration from old [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) to modern [libmemcached](http://libmemcached.org/)
 
-# News in this version (v1.1.1)
+# News in v1.1.1
 
 * Correct handling of "=" in value of the memcache session (E. Dumas).
 * Don't breaks basic authentication (Steve Gaarder)
