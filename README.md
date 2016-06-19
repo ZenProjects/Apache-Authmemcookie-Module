@@ -31,7 +31,7 @@ You must have compiled and installed:
 
 # News in v2.0
 
-* Real apache 2.3/2.4 authn model support
+* Full support for apache 2.3/2.4 authz/authn model support
 * Fix in http header sending
 * Support for setting prefix http header other than "MCAC_"
 
