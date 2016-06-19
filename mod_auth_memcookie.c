@@ -224,13 +224,13 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     szTokenPos=NULL;
     for(szField=apr_strtok(szMyValue,"\r\n",&szTokenPos);szField;szField=apr_strtok(NULL,"\r\n",&szTokenPos)) {
         szFieldTokenPos=NULL;
-	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX "session field:%s",szField);
+	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX "session field:'%s'",szField);
         szFieldName=apr_strtok(szField,"=",&szFieldTokenPos);
         szFieldValue=apr_strtok(NULL,"\r\n",&szFieldTokenPos);
 	if (szFieldName!=NULL&&szFieldValue!=NULL) {
 	  /* add key and value in pMySession table */
 	  apr_table_set(pMySession,szFieldName,szFieldValue);
-	  ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX "session information %s=%s",szFieldName,szFieldValue);
+	  ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX "session information '%s'='%s'",szFieldName,szFieldValue);
 
 	  /* count the number of element added to table to check table size not reached */
 	  nbInfo++;
@@ -331,12 +331,14 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
       apr_base64_encode(szB64_enc_string,szValue,strlen(szValue));
 
       /* set string header */
-      apr_table_set(r->headers_in,szHeaderName, (char*)szB64_enc_string);
+      apr_table_setn(r->subprocess_env,szHeaderName,(char*)szB64_enc_string);
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szB64_enc_string);
     }
     else
     {
       /* set string header */
-      apr_table_set(r->headers_in,szHeaderName, (char*)szValue);
+      apr_table_setn(r->subprocess_env,szHeaderName,(char*)szValue);
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szValue);
     }
     return 1;
 }
@@ -483,7 +485,10 @@ static int Auth_memCookie_check_cookie(request_rec *r)
     }
 
     /* send http header of the session value to the backend */
-    if (conf->nAuth_memCookie_SetSessionHTTPHeader) apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
+    if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
+       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionHTTPHeader is set then send http header...");
+       apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
+    }
 
     /* cookie found the user is authentified */
     apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
@@ -538,7 +543,7 @@ static authz_status Auth_memCookie_group_authz_checker(request_rec *r, const cha
          return AUTHZ_DENIED_NO_USER;
     }
 
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "ap_hook_auth_checker in");
+    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "Auth_memCookie_group_authz_checker in");
 
     /* get apache config */
     conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
@@ -609,7 +614,7 @@ static int Auth_memCookie_check_auth(request_rec *r)
     apr_table_t *pAuthSession=NULL;
     apr_status_t tRetStatus;
 
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "ap_hook_auth_checker in");
+    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "Auth_memCookie_check_auth in");
 
     /* get apache config */
     conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
@@ -801,16 +806,16 @@ static const command_rec Auth_memCookie_cmds[] =
      OR_AUTHCFG, "Session object in memcached expiry time, in secondes."),
     AP_INIT_TAKE1("Auth_memCookie_SessionTableSize", ap_set_int_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SessionTableSize),
-     OR_AUTHCFG, "Max number of element in session information table. 10 by default"),
+     OR_AUTHCFG, "Max number of element in session information table. is set to 10 by default"),
     AP_INIT_FLAG ("Auth_memCookie_Memcached_SessionObject_ExpiryReset", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_MemcacheObjectExpiryReset),
-     OR_AUTHCFG, "Set to 'no' to not reset object expiry time in memcache... yes by default"),
+     OR_AUTHCFG, "Set to 'off' to not reset object expiry time in memcache... is 'on' by default"),
     AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeader", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeader),
-     OR_AUTHCFG, "Set to 'yes' to set session information to http header of the authenticated users, no by default"),
+     OR_AUTHCFG, "Set to 'on' to set session information to http header of the authenticated users, no by default"),
     AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeaderEncode", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeaderEncode),
-     OR_AUTHCFG, "Set to 'yes' to mime64 encode session information to http header, no by default"),
+     OR_AUTHCFG, "Set to 'on' to mime64 encode session information to http header, no by default"),
     AP_INIT_TAKE1("Auth_memCookie_SetSessionHTTPHeaderPrefix", ap_set_string_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SetSessionHTTPHeaderPrefix),
      OR_AUTHCFG, "Set HTTP header prefix - set to 'MCAC_' by default"),
@@ -823,14 +828,14 @@ static const command_rec Auth_memCookie_cmds[] =
 #if MODULE_MAGIC_NUMBER_MAJOR <= 20051115
     AP_INIT_FLAG ("Auth_memCookie_GroupAuthoritative", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_GroupAuthoritative),
-     OR_AUTHCFG, "Set to 'no' to allow access control to be passed along to lower modules, for group acl check, set to 'yes' by default."),
+     OR_AUTHCFG, "Set to 'off' to allow access control to be passed along to lower modules, for group acl check, is set to 'on' by default."),
 #endif
     AP_INIT_FLAG ("Auth_memCookie_Authoritative", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_Authoritative),
-     OR_AUTHCFG, "Set to 'yes' to allow access control to be passed along to lower modules, set to 'no' by default"),
+     OR_AUTHCFG, "Set to 'on' to allow access control to be passed along to lower modules, is set to 'off' by default"),
     AP_INIT_FLAG ("Auth_memCookie_SilmulateAuthBasic", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_authbasicfix),
-     OR_AUTHCFG, "Set to 'no' to fix http header and auth_type for simulating auth basic for scripting language like php auth framework work, set to 'yes' by default"),
+     OR_AUTHCFG, "Set to 'off' to fix http header and auth_type for simulating auth basic for scripting language like php auth framework work, is set to 'on' by default"),
     AP_INIT_FLAG ("Auth_memCookie_DisableNoStore", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_disable_no_store),
      OR_AUTHCFG,
