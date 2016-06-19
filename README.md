@@ -11,24 +11,6 @@ Authentication is made externally by an Authentication html form page and all Au
 
 - All the documentation are [here](http://zenprojects.github.io/Apache-Authmemcookie-Module/)
 
-# Build dependency
-
-You must have compiled and installed:
-
-- [libevent](http://libevent.org/) use by [memcached](http://memcached.org/).
-
-- [memcached](http://memcached.org/) the cache daemon it self.
-
-- [libmemcached](http://libmemcached.org/) the C client API needed to compile the Apache Module.
-
-# How to build
-
-```
-# ./configure --with-apxs=/path/to/apache/httpd/bin/apxs --with-libmemcached=/path/to/libmemcached/
-# make
-# make install
-```
-
 # News in v2.0
 
 * Full support for apache 2.3/2.4 authz/authn model support
