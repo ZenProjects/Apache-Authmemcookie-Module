@@ -1,4 +1,4 @@
-/* Copyright 1999-2004 The Apache Software Foundation
+/* Copyright 1999-2016 Mathieu CARBONNEAUX
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,7 +343,8 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
     return 1;
 }
 
-/*
+/****************************************************************************
+ *
  * Auth_memCookie_Return_Safe_Unauthorized
  *
  * potential security issue: if we return a login to the browser, we must
@@ -352,7 +353,8 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
  *
  * if the user has full control over the backend, the
  * AuthCookieDisableNoStore can be used to turn this off.
- */
+ *
+ ****************************************************************************/
 static int Auth_memCookie_Return_Safe_Unauthorized(request_rec *r)
 {
     strAuth_memCookie_config_rec *conf=NULL;
@@ -368,7 +370,7 @@ static int Auth_memCookie_Return_Safe_Unauthorized(request_rec *r)
     return HTTP_UNAUTHORIZED;
 }
 
-/**************************************************
+/******************************************************************************
  *
  * Auth_memCookie_check_cookie
  *
@@ -379,7 +381,7 @@ static int Auth_memCookie_Return_Safe_Unauthorized(request_rec *r)
  *
  * It is up to the webmaster to ensure this screen displays a suitable login
  * form to give the user the opportunity to log in.
- **************************************************/
+ *****************************************************************************/
 static int Auth_memCookie_check_cookie(request_rec *r)
 {
     strAuth_memCookie_config_rec *conf=NULL;
@@ -722,8 +724,28 @@ static const authz_provider Auth_memCookie_authz_group_provider = {
 		&Auth_memCookie_authz_parse_config,
 };
 
-#endif
+/**************************************************************
+ *
+ * hook_note_auth_failure
+ *
+ * Make http redirect when authentication/authorization fail.
+ *
+ *************************************************************/
+static int hook_note_auth_failure(request_rec * r, const char *auth_type)
+{
+    if (strcasecmp(auth_type, "cookie"))
+        return DECLINED;
 
+    auth_form_config_rec *conf = ap_get_module_config(r->per_dir_config,
+                                                      &auth_form_module);
+
+    if (conf->location && ap_strchr_c(conf->location, ':')) {
+        apr_table_setn(r->err_headers_out, "Location", conf->location);
+    }
+    return OK;
+}
+
+#endif
 
 /**************************************************
  * register module hook 
@@ -735,10 +757,15 @@ static void register_hooks(apr_pool_t *p)
     // apache >=2.3 model
 #if MODULE_MAGIC_NUMBER_MAJOR > 20051115
     ap_hook_check_authn(Auth_memCookie_check_cookie, NULL, NULL, APR_HOOK_FIRST, AP_AUTH_INTERNAL_PER_CONF);
+
     ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "mcac-group", 
 				 AUTHZ_PROVIDER_VERSION, 
 				 &Auth_memCookie_authz_group_provider, 
 				 AP_AUTH_INTERNAL_PER_CONF);
+
+    ap_hook_note_auth_failure(hook_note_auth_failure, NULL, NULL,
+                                  APR_HOOK_MIDDLE);
+
 #else
     // apache 2.0 to 2.2 model
     ap_hook_check_user_id(Auth_memCookie_check_cookie, NULL, NULL, APR_HOOK_FIRST);
@@ -761,7 +788,7 @@ static void *create_Auth_memCookie_dir_config(apr_pool_t *p, char *d)
 #if MODULE_MAGIC_NUMBER_MAJOR <= 20051115
     conf->nAuth_memCookie_GroupAuthoritative = 1;  /* group are handled by this module by default */
 #endif
-    conf->nAuth_memCookie_Authoritative = 0;  /* not by default */
+    conf->nAuth_memCookie_Authoritative = 1;  /* is set by default */
     conf->nAuth_memCookie_authbasicfix = 1;  /* fix header for php auth by default */
     conf->nAuth_memCookie_SetSessionHTTPHeader = 0; /* set session information in http header of authenticated user */
     conf->nAuth_memCookie_SetSessionHTTPHeaderEncode = 0; /* encode http header groups value by default */
@@ -812,18 +839,17 @@ static const command_rec Auth_memCookie_cmds[] =
      OR_AUTHCFG, "Set to 'off' to not reset object expiry time in memcache... is 'on' by default"),
     AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeader", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeader),
-     OR_AUTHCFG, "Set to 'on' to set session information to http header of the authenticated users, no by default"),
+     OR_AUTHCFG, "Set to 'on' to set session information to http header of the authenticated users, is set 'off' by default"),
     AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeaderEncode", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeaderEncode),
-     OR_AUTHCFG, "Set to 'on' to mime64 encode session information to http header, no by default"),
+     OR_AUTHCFG, "Set to 'on' to mime64 encode session information to http header, is set 'off' by default"),
     AP_INIT_TAKE1("Auth_memCookie_SetSessionHTTPHeaderPrefix", ap_set_string_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SetSessionHTTPHeaderPrefix),
      OR_AUTHCFG, "Set HTTP header prefix - set to 'MCAC_' by default"),
     AP_INIT_TAKE1("Auth_memCookie_CookieName", ap_set_string_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_CookieName),
      OR_AUTHCFG, "Name of cookie to set"),
-    AP_INIT_TAKE1 ( "Auth_memCookie_MatchIP_Mode", cmd_MatchIP_Mode, 
-     NULL, 
+    AP_INIT_TAKE1("Auth_memCookie_MatchIP_Mode", cmd_MatchIP_Mode, NULL, 
      OR_AUTHCFG, "To check cookie ip adresse, Set to '1' to use 'X-Forwarded-For' http header, to '2' to use 'Via' http header, and to '3' to use apache remote_ip. set to '0' by default to desactivate the ip check."),
 #if MODULE_MAGIC_NUMBER_MAJOR <= 20051115
     AP_INIT_FLAG ("Auth_memCookie_GroupAuthoritative", ap_set_flag_slot,
@@ -832,7 +858,7 @@ static const command_rec Auth_memCookie_cmds[] =
 #endif
     AP_INIT_FLAG ("Auth_memCookie_Authoritative", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_Authoritative),
-     OR_AUTHCFG, "Set to 'on' to allow access control to be passed along to lower modules, is set to 'off' by default"),
+     OR_AUTHCFG, "Set to 'off' to allow access control to be passed along to lower modules, is set to 'on' by default"),
     AP_INIT_FLAG ("Auth_memCookie_SilmulateAuthBasic", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_authbasicfix),
      OR_AUTHCFG, "Set to 'off' to fix http header and auth_type for simulating auth basic for scripting language like php auth framework work, is set to 'on' by default"),
