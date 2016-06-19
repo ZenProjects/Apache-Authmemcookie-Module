@@ -1,5 +1,5 @@
 <?php
- /* Copyright 1999-2004 The Apache Software Foundation
+ /* Copyright 1999-2016 Mathieu CARBONNEAUX
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -125,10 +125,10 @@
   
   if ($my_id_ok) {
     // instantiate memcache api object
-    $memcache = new Memcache;
+    $memcache = new Memcached;
 
     // connect to memcached on localhost port 11000
-    $memcache->connect('localhost', 11000) or die ("Could not connect");
+    $memcache->add('localhost', 11000) or die ("Could not connect");
 
     // generate cookie uniq session id   
     $key=md5(uniqid(rand(), true).$_SERVER["REMOTE_ADDR"].time());
