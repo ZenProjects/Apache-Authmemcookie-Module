@@ -764,7 +764,7 @@ static void *create_Auth_memCookie_dir_config(apr_pool_t *p, char *d)
     conf->nAuth_memCookie_Authoritative = 0;  /* not by default */
     conf->nAuth_memCookie_authbasicfix = 1;  /* fix header for php auth by default */
     conf->nAuth_memCookie_SetSessionHTTPHeader = 0; /* set session information in http header of authenticated user */
-    conf->nAuth_memCookie_SetSessionHTTPHeaderEncode = 1; /* encode http header groups value by default */
+    conf->nAuth_memCookie_SetSessionHTTPHeaderEncode = 0; /* encode http header groups value by default */
     conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix = apr_pstrdup(p,"MCAC_"); 
     conf->nAuth_memCookie_SessionTableSize=10; /* Max number of element in session information table, 10 by default */
     conf->nAuth_memCookie_disable_no_store=0; /* no store cache option are the default */
