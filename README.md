@@ -31,19 +31,19 @@ You must have compiled and installed:
 
 # News in v2.0
 
-* real apache 2.3/2.4 authn model support
-* fix in http header sending
-* support for setting prefix http header other that "MCAC_"
+* Real apache 2.3/2.4 authn model support
+* Fix in http header sending
+* Support for setting prefix http header other than "MCAC_"
 
 # News in v1.2
 
-* migration from old [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) to modern [libmemcached](http://libmemcached.org/)
+* Migration from old [libmemcache](https://github.com/richp10/libmemcache-1.4.0.rc2-patched) to modern [libmemcached](http://libmemcached.org/)
 
 # News in v1.1.1
 
 * Correct handling of "=" in value of the memcache session (E. Dumas).
 * Don't breaks basic authentication (Steve Gaarder)
-* multi users/groups require support
-* no more memory leak when mc_aget2 return NULL
-* apache 2.4 partial support (no use the new security model)
-* some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
+* Multi users/groups require support
+* Fix memory leak when mc_aget2 return NULL
+* Apache 2.4 partial support (no use the new security model)
+* Fix somme portability issue (apr_strtok in place of strtok, and variable definition in front of function)
