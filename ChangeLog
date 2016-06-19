@@ -8,6 +8,7 @@
 	* mod_authmemcookie/1.02 
 	* bug fix of Auth_memCookie_SessionTableSize to 8 any time...
 	* complete rewrite of match ip option to make possible to use it behind reverse proxy and to check x-forwarded or via http header in place of apache remote_ip.
+
 2014-11-10 mcarbonneaux
 	* mod_authmemcookie/1.1.0
 	* Correct handling of "=" in value of the memcache session (E. Dumas).
@@ -17,3 +18,12 @@
 	* apache 2.4 partial support (no use the new security model)
 	* some portability issue (apr_strtok in place of strtok, and variable definition in front of function)
 	
+2016-06-18 mcarbonneaux
+	* mod_authmemcookie/1.2.0
+	* migration from old libmemcache (https://people.freebsd.org/~seanc/libmemcache/) to modern libmemcached(http://libmemcached.org/)
+
+2016-06-19 mcarbonneaux
+	* mod_authmemcookie/2.0.0
+	* Full support for apache 2.3/2.4 authz/authn model support
+	* Fix in http header sending
+	* Add support for setting prefix http header other than "MCAC_"
