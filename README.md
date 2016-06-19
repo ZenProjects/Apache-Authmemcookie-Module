@@ -1,7 +1,7 @@
 AuthMemCookie Apache Module
 =============
 
-The "Auth MemCookie" is an Apache v2.0 Authentication and authorization modules are based on "cookie" Authentication mechanism.
+The "Auth MemCookie" is an Apache v2 Authentication and authorization modules are based on "cookie" Authentication mechanism.
 
 The module doesn’t make Authentication by it self, but verify if Authentication "the cookie" are valid for each url protected by the module. The module validate also if the "authenticated user" have authorization to access url.
 
