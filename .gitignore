@@ -3,3 +3,6 @@
 *.o
 *.slo
 *.lo
+Makefile
+config.log
+config.status
