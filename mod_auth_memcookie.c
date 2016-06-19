@@ -536,6 +536,8 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
 
     apr_table_t *pAuthSession=NULL;
 
+    authz_status nReturn=AUTHZ_GRANTED;
+
     ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "Auth_memCookie_public_authz_checker in");
     if (!szMyUser) {
 
@@ -552,14 +554,14 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
       unless(szCookieValue = extract_cookie(r, conf->szAuth_memCookie_CookieName))
       {
 	ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "cookie not found, continue !");
-	return AUTHZ_NEUTRAL;
+	return nReturn;
       }
       ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "got cookie; value is %s", szCookieValue);
 
       /* get session name "szCookieValue" from memcached */
       if((pAuthSession = Auth_memCookie_get_session(r, conf, szCookieValue))==NULL) {
 	  ap_log_rerror(APLOG_MARK, APLOG_WARNING|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "AuthSession %s not found: %s", szCookieValue, r->filename);
-	  return AUTHZ_NEUTRAL;
+	  return nReturn;
       }
 
       /* send http header of the session value to the backend */
@@ -578,7 +580,7 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
       apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","no");
 
     }
-    return AUTHZ_NEUTRAL;
+    return nReturn;
 }
 /**************************************************
  *
