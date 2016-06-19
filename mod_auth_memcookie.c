@@ -159,6 +159,9 @@ static void fix_headers_in(request_rec *r,char*szPassword)
 
      /* set authorization header */
      apr_table_set(r->headers_in,"Authorization", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
+     apr_table_set(r->headers_out,"Authorization", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
+     apr_table_set(r->subprocess_env,"PHP_AUTH_DIGEST_RAW", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
+     apr_table_set(r->subprocess_env,"HTTP_AUTHORIZATION", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
 
      /* force auth type to basic */
      r->ap_auth_type=apr_pstrdup(r->pool,"Basic");
@@ -305,6 +308,16 @@ static int get_Auth_memCookie_grp(request_rec *r, const char *szGroup, const cha
     return OK;
 }
 
+char* strupr(char* s)
+{
+    char* tmp = s;
+
+    for (;*tmp;++tmp) {
+        *tmp = toupper((unsigned char) *tmp);
+    }
+
+    return s;
+}
 
 /***************************************************************
  *
@@ -324,6 +337,7 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
 
     /* prefix each variable with "szAuth_memCookie_SetSessionHTTPHeaderPrefix" (by default MCAC_) */
     char*szHeaderName=apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,szKey,NULL);
+    strupr(szHeaderName);
 
     if (conf->nAuth_memCookie_SetSessionHTTPHeaderEncode) {
       /* alloc memory for the estimated encode size of the string */
@@ -447,7 +461,6 @@ static int Auth_memCookie_check_cookie(request_rec *r)
 	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Auth type not specified as 'Cookie'");
 	return DECLINED; //IIG: Allow basic auth to be set
     }
-    r->ap_auth_type = (char *) current_auth;
 
     /* check if the cookie name are set */
     unless(conf->szAuth_memCookie_CookieName) {
@@ -491,14 +504,17 @@ static int Auth_memCookie_check_cookie(request_rec *r)
        apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
     }
 
+    /* set MCAC_SESSIONKEY var for scripts language */
+    apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
+
+    /* HTTP Header Prefix */
+    apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
+
     /* cookie found the user is authentified */
     apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
 
     /* set REMOTE_USER var for scripts language */
     apr_table_setn(r->subprocess_env,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
-
-    /* set MCAC_SESSIONKEY var for scripts language */
-    apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
     
     /* log authorisation ok */
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "authentication ok");
@@ -551,6 +567,15 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
 	 ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionHTTPHeader is set then send http header...");
 	 apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
       }
+
+      /* set MCAC_SESSIONKEY var for scripts language */
+      apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
+    
+      /* HTTP Header Prefix */
+      apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
+
+      /* cookie found but they are in public zone */
+      apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","no");
 
     }
     return AUTHZ_NEUTRAL;
