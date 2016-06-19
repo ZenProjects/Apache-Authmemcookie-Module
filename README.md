@@ -33,7 +33,7 @@ You must have compiled and installed:
 
 * Full support for apache 2.3/2.4 authz/authn model support
 * Fix in http header sending
-* Support for setting prefix http header other than "MCAC_"
+* Add support for setting prefix http header other than "MCAC_"
 
 # News in v1.2
 
