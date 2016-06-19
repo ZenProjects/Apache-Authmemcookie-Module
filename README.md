@@ -32,8 +32,10 @@ You must have compiled and installed:
 # News in v2.0
 
 * Full support for apache 2.3/2.4 authz/authn model support
-* Fix in http header sending
+* Fix http header not sending to backend
 * Add support for setting prefix http header other than "MCAC_"
+* Add public zone support (Require mcac-public only in apache 2.3/2.4)
+* Http header name sended to backend in uppercase
 
 # News in v1.2
 
