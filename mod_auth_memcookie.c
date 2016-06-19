@@ -197,6 +197,13 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     char *szSeparator=", \t";
     int nbInfo=0;
     
+    /* check if libmemcached configuration are set */
+    unless(conf->szAuth_memCookie_memCached_Configuration) {
+	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "No Auth_memCookie_memCached_Configuration specified");
+        return NULL;
+    }
+    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "libmemcached configuration are %s",conf->szAuth_memCookie_memCached_Configuration);
+
     /* init memcache lib */
     unless(memc=memcached(szMemcached_Configuration,strlen(szMemcached_Configuration))) {
 	 ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "memcache lib init failed");
@@ -224,7 +231,6 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     szTokenPos=NULL;
     for(szField=apr_strtok(szMyValue,"\r\n",&szTokenPos);szField;szField=apr_strtok(NULL,"\r\n",&szTokenPos)) {
         szFieldTokenPos=NULL;
-	ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX "session field:'%s'",szField);
         szFieldName=apr_strtok(szField,"=",&szFieldTokenPos);
         szFieldValue=apr_strtok(NULL,"\r\n",&szFieldTokenPos);
 	if (szFieldName!=NULL&&szFieldValue!=NULL) {
@@ -449,13 +455,6 @@ static int Auth_memCookie_check_cookie(request_rec *r)
         return Auth_memCookie_Return_Safe_Unauthorized(r);
     }
 
-    /* check if libmemcached configuration are set */
-    unless(conf->szAuth_memCookie_memCached_Configuration) {
-	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "No Auth_memCookie_memCached_Configuration specified");
-        return Auth_memCookie_Return_Safe_Unauthorized(r);
-    }
-    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "libmemcached configuration are %s",conf->szAuth_memCookie_memCached_Configuration);
-
     /* get cookie named "szAuth_memCookie_CookieName" */
     unless(szCookieValue = extract_cookie(r, conf->szAuth_memCookie_CookieName))
     {
@@ -513,6 +512,49 @@ static int Auth_memCookie_check_cookie(request_rec *r)
 
 #if MODULE_MAGIC_NUMBER_MAJOR > 20051115
 
+static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const char *require_args, const void *parsed_require_args) {
+
+    strAuth_memCookie_config_rec *conf=NULL;
+    char *szMyUser=r->user;
+    char *szCookieValue=NULL;
+
+    apr_table_t *pAuthSession=NULL;
+
+    ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "Auth_memCookie_public_authz_checker in");
+    if (!szMyUser) {
+
+      /* get apache config */
+      conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
+
+      /* check if the cookie name are set */
+      unless(conf->szAuth_memCookie_CookieName) {
+	  ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "No Auth_memCookie_CookieName specified");
+	  return AUTHZ_GENERAL_ERROR;
+      }
+
+      /* get cookie named "szAuth_memCookie_CookieName" */
+      unless(szCookieValue = extract_cookie(r, conf->szAuth_memCookie_CookieName))
+      {
+	ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "cookie not found, continue !");
+	return AUTHZ_NEUTRAL;
+      }
+      ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "got cookie; value is %s", szCookieValue);
+
+      /* get session name "szCookieValue" from memcached */
+      if((pAuthSession = Auth_memCookie_get_session(r, conf, szCookieValue))==NULL) {
+	  ap_log_rerror(APLOG_MARK, APLOG_WARNING|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "AuthSession %s not found: %s", szCookieValue, r->filename);
+	  return AUTHZ_NEUTRAL;
+      }
+
+      /* send http header of the session value to the backend */
+      if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
+	 ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionHTTPHeader is set then send http header...");
+	 apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
+      }
+
+    }
+    return AUTHZ_NEUTRAL;
+}
 /**************************************************
  *
  * Auth_memCookie_check_auth
@@ -719,6 +761,11 @@ static const char *Auth_memCookie_authz_parse_config( cmd_parms *cmd, const char
     return NULL;
 }
 
+static const authz_provider Auth_memCookie_authz_public_provider = {
+ 		&Auth_memCookie_public_authz_checker,
+		NULL,
+};
+
 static const authz_provider Auth_memCookie_authz_group_provider = {
  		&Auth_memCookie_group_authz_checker,
 		&Auth_memCookie_authz_parse_config,
@@ -740,6 +787,11 @@ static void register_hooks(apr_pool_t *p)
     ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "mcac-group", 
 				 AUTHZ_PROVIDER_VERSION, 
 				 &Auth_memCookie_authz_group_provider, 
+				 AP_AUTH_INTERNAL_PER_CONF);
+
+    ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "mcac-public", 
+				 AUTHZ_PROVIDER_VERSION, 
+				 &Auth_memCookie_authz_public_provider, 
 				 AP_AUTH_INTERNAL_PER_CONF);
 
 #else
