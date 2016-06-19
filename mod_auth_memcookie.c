@@ -374,7 +374,7 @@ static int Auth_memCookie_Return_Safe_Unauthorized(request_rec *r)
  *
  * Auth_memCookie_check_cookie
  *
- * This is the authentification phase (authn), they verify 
+ * This is the Authentication phase (authn), they verify 
  * if authentification cookie is set and if is know in memcache server.
  *
  * If the login is not valid, a 401 Not Authorized will be returned. 
@@ -517,7 +517,7 @@ static int Auth_memCookie_check_cookie(request_rec *r)
  *
  * Auth_memCookie_check_auth
  *
- * Authentification phase in apache >2.3 : 
+ * Authorization phase (authz) in apache >2.3 : 
  * Checking authoriszation group for the authenticated cookie 
  **************************************************/
 
@@ -593,7 +593,7 @@ static authz_status Auth_memCookie_group_authz_checker(request_rec *r, const cha
  *
  * Auth_memCookie_check_auth
  *
- * Authentification phase in apache 2.0 to 2.2 : 
+ * Authorization phase in apache 2.0 to 2.2 : 
  *   Checking authoriszation for user and group of the authenticated cookie 
  **************************************************/
 
@@ -724,27 +724,6 @@ static const authz_provider Auth_memCookie_authz_group_provider = {
 		&Auth_memCookie_authz_parse_config,
 };
 
-/**************************************************************
- *
- * hook_note_auth_failure
- *
- * Make http redirect when authentication/authorization fail.
- *
- *************************************************************/
-static int hook_note_auth_failure(request_rec * r, const char *auth_type)
-{
-    if (strcasecmp(auth_type, "cookie"))
-        return DECLINED;
-
-    auth_form_config_rec *conf = ap_get_module_config(r->per_dir_config,
-                                                      &auth_form_module);
-
-    if (conf->location && ap_strchr_c(conf->location, ':')) {
-        apr_table_setn(r->err_headers_out, "Location", conf->location);
-    }
-    return OK;
-}
-
 #endif
 
 /**************************************************
@@ -762,9 +741,6 @@ static void register_hooks(apr_pool_t *p)
 				 AUTHZ_PROVIDER_VERSION, 
 				 &Auth_memCookie_authz_group_provider, 
 				 AP_AUTH_INTERNAL_PER_CONF);
-
-    ap_hook_note_auth_failure(hook_note_auth_failure, NULL, NULL,
-                                  APR_HOOK_MIDDLE);
 
 #else
     // apache 2.0 to 2.2 model
