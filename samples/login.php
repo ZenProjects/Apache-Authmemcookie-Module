@@ -1,5 +1,5 @@
 <?php
-/* Copyright 1999-2004 The Apache Software Foundation
+/* Copyright 1999-2016 Mathieu CARBONNEAUX
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 <html>
 <head>
 <title>page de login</title>
-<link rel="stylesheet" type="text/css" href="/styles/evroult.css">
 </head>
 <body>
 <h1>&nbsp;</h1>
