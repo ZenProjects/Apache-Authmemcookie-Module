@@ -189,7 +189,6 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     apr_table_t *pMySession=NULL;
     size_t nGetKeyLen=strlen(szCookieValue);
     size_t nGetLen=0;
-    char *szServer;
     char *szTokenPos;
     char *szFieldTokenPos;
     char *szField;
@@ -197,7 +196,6 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     char *szFieldName;
     char *szFieldValue;
     char *szMyValue;
-    char *szSeparator=", \t";
     int nbInfo=0;
     
     /* check if libmemcached configuration are set */
@@ -267,7 +265,7 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     /* reset expire time in memcached */
     if (conf->nAuth_memCookie_MemcacheObjectExpiryReset&&pMySession) {
      if ((rc=memcached_set(memc,szCookieValue,nGetKeyLen,szValue,nGetLen,tExpireTime,flags))) {
-       ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r,LOGTAG_PREFIX  "Expire time with memcached_set (key:%s) failed with errcode=%d",szCookieValue,memcached_last_error_message(memc));
+       ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r,LOGTAG_PREFIX  "Expire time with memcached_set (key:%s) failed with errcode=%s",szCookieValue,memcached_last_error_message(memc));
        pMySession=NULL;
      }
     }
@@ -592,13 +590,11 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
 
 static authz_status Auth_memCookie_group_authz_checker(request_rec *r, const char *require_args, const void *parsed_require_args) {
 
-    strAuth_memCookie_config_rec *conf=NULL;
     char *szMyUser=r->user;
-    int m = r->method_number;
+    //int m = r->method_number;
 
     const char *err = NULL;
 
-    require_line *reqs=NULL;
     const ap_expr_info_t *expr = parsed_require_args;
     const char *require;
 
@@ -615,9 +611,6 @@ static authz_status Auth_memCookie_group_authz_checker(request_rec *r, const cha
     }
 
     ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "Auth_memCookie_group_authz_checker in");
-
-    /* get apache config */
-    conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
 
     // no cookie session validated go denied
     if((tRetStatus=apr_pool_userdata_get((void**)&pAuthSession,"SESSION",r->pool))) {
