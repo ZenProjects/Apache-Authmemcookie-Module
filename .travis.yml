@@ -13,4 +13,3 @@ install:
   - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr
 script:
   - make
-  - make install
