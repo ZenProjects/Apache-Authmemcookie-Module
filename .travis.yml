@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get install php5-dev
   - sudo apt-get install libmemcached-dev
 install: 
-  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr/include/libmemcached
+  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr
 script:
   - make
   - make install
