@@ -1,3 +1,16 @@
+sudo: required
+dist: trusty
 language: c
-install: make get-deps
 compiler: gcc
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install gcc
+  - sudo apt-get install apache2-dev
+  - sudo apt-get install libphp5-embed 
+  - sudo apt-get install php5-dev
+  - sudo apt-get install libmemcached-dev
+install: make get-deps
+script:
+  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr/include/libmemcached
+  - make
+  - make install
