@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module.svg?branch=master)](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module)
+
 AuthMemCookie Apache Module
 =============
 
