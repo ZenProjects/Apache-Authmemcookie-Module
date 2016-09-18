@@ -9,8 +9,8 @@ before_install:
   - sudo apt-get install libphp5-embed 
   - sudo apt-get install php5-dev
   - sudo apt-get install libmemcached-dev
-install: make get-deps
-script:
+install: 
   - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr/include/libmemcached
+script:
   - make
   - make install
