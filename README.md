@@ -17,10 +17,10 @@ Authentication is made externally by an Authentication html form page and all Au
 # News in v2.0
 
 * Full support for apache 2.3/2.4 authz/authn model support
-* Fix http header not sending to backend
-* Add support for setting prefix http header other than `"MCAC_"`
+* Fix HTTP header not sending to backend
+* Add support for setting prefix HTTP header other than `"MCAC_"`
 * Add public zone support (`Require mcac-public` only in apache 2.3/2.4)
-* Http header name sended to backend in uppercase
+* HTTP header name sended to backend in uppercase
 
 # News in v1.2
 
