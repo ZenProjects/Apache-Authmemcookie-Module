@@ -513,6 +513,9 @@ static int Auth_memCookie_check_cookie(request_rec *r)
 
     /* set REMOTE_USER var for scripts language */
     apr_table_setn(r->subprocess_env,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
+
+    /* set REMOTE_GROUPS var for scripts language */
+    apr_table_setn(r->subprocess_env,"REMOTE_GROUPS",apr_table_get(pAuthSession,"Groups"));
     
     /* log authorisation ok */
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "authentication ok");
