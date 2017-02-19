@@ -1,0 +1,18 @@
+sudo: required
+dist: trusty
+language: c
+compiler: gcc
+branches:
+  only:
+  - master
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install gcc
+  - sudo apt-get install apache2-dev
+  - sudo apt-get install libphp5-embed 
+  - sudo apt-get install php5-dev
+  - sudo apt-get install libmemcached-dev
+install: 
+  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr
+script:
+  - make
