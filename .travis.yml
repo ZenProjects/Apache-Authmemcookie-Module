@@ -18,3 +18,5 @@ install:
   - cat config.log
 script:
   - make
+matrix:
+  fast_finish: false
