@@ -14,8 +14,8 @@ before_install:
   - sudo apt-get install libmemcached-dev
   - dpkg -L libmemcached-dev
 install: 
-  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr
-  - cat config.log
+  - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr || cat config.log 
+
 script:
   - make
 matrix:
