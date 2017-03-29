@@ -12,7 +12,7 @@ Authentication is made externally by an Authentication html form page and all Au
 
 # Documentation 
 
-- All the documentation are [here](http://zenprojects.github.io/Apache-Authmemcookie-Module/)
+- All the documentation are [here](CONFIG.md)
 
 # Releases notes
 
