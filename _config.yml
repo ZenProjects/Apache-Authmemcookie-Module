@@ -1,5 +1,5 @@
 title: Apache-authmemcookie-module
-description: "\"Auth MemCookie\" is an Apache v2 Authentication and authorization </br > modules are based on \"cookie\" Authentication mechanism"
+description: "\"Auth MemCookie\" is an Apache v2 Authentication and authorization </br > modules based on \"cookie\" Authentication mechanism"
 google_analytics: 
 show_downloads: true
 theme: jekyll-theme-cayman
