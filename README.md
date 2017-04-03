@@ -7,7 +7,7 @@
 
 The module doesn’t make Authentication by it self, but verify if Authentication "the cookie" is valid for each url protected by the module. The module validate also if the "authenticated user" have authorization to access url.
 
-Authentication is made externally by an Authentication html form page and all Authentication information necessary to the module a stored in memcached identified by the cookie value "Authentication session id" by this login page.
+`Authentication` is made externally by an Authentication `html form page` and all Authentication information necessary to the module a stored in `memcached` identified by the cookie value "Authentication session id" by this login page.
 
 # How it Works
 
@@ -27,9 +27,21 @@ The login page can be developed in any language you want, but must be capable to
 
 After the user is logged, the apache 2 module check on each protected page by apache ACL the presence of the "cookie".
 
-If the "cookie" exists, try to get session in [memcached](http://memcached.org/) with the "cookie" value if not found return "**HTTP_UNAUTHORIZED**" page. 
+When authenticating a request Auth MemCookie walks through the following steps:
 
-If session exists in [memcached](http://memcached.org/) verify if ACL match user session information if not match return "**HTTP_FORBIDDEN**" page. 
+1. Get the session id. The session id is stored in a cookie (by default named AuthMemCookie).
+
+2. Get the session data. Auth MemCookie fetches session data by looking up the session id on the [memcached](http://memcached.org/) server.
+
+3. Verify the remote ip. Auth MemCookie checks the ip address stored in the session data against the ip address of the current request. This step is optional, and can be disabled by setting the Auth_memCookie_MatchIP option to no.
+
+4. Get username and groups from session data. The username is stored in the UserName field in the session data and the groups the user is a member of is stored in the Groups field.
+
+5. Check username and groups against Require configuration directives. See http://httpd.apache.org/docs/2.0/mod/core.html#require
+
+If any of the steps 1-4 fails, then Auth MemCookie will return a "**HTTP_UNAUTHORIZED**" (401) Authorization Required error. A "**HTTP_FORBIDDEN**" (403) Forbidden error will be returned if the last step fails.
+
+When a user is successfully authenticated, Auth MemCookie will store all the fields from the session data in environment variables accessible to the web page. Every field will be stored by setting MCAC_<field-name> to the value of the field. 
 
 # Session format stored in memcached
 
