@@ -15,7 +15,7 @@ before_install:
   - dpkg -L libmemcached-dev
 install:
   - autoconf -f 
-  - automake -f 
+  #- automake -f 
   - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr || cat config.log 
 
 script:
