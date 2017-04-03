@@ -13,10 +13,13 @@ before_install:
   - sudo apt-get install php5-dev
   - sudo apt-get install libmemcached-dev
   - dpkg -L libmemcached-dev
-install: 
+install:
+  - autoconf -f 
+  - automake -f 
   - ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr || cat config.log 
 
 script:
   - make
 matrix:
   fast_finish: false
+  
