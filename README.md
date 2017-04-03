@@ -97,78 +97,78 @@ This option can be used in `location` or `directory` apache context.
 
 - **Auth_memCookie_Memcached_Configuration**
 
-This configuration directive permit to configure libmemcached initialisation.
-The syntax of this directive value are defined her: http://docs.libmemcached.org/libmemcached_configuration.html
+    This configuration directive permit to configure libmemcached initialisation.
+    The syntax of this directive value are defined her: http://docs.libmemcached.org/libmemcached_configuration.html
 
-With that directive you can specify a liste of ip or host adresse(s) and port ':' separed of memcache(s) daemon to be used.
+    With that directive you can specify a liste of ip or host adresse(s) and port ':' separed of memcache(s) daemon to be used.
 
-For exemple: 
-```
-    Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
-```
+    For exemple: 
+    ```
+        Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
+    ```
 - **Auth_memCookie_Memcached_SessionObject_ExpireTime**
 
-Session object stored in memcached expiry time, in secondes. 
+    Session object stored in memcached expiry time, in secondes. 
 
-Used only if `Auth_memCookie_Memcached_SessionObject_ExpiryReset` is set to `on`.
+    Used only if `Auth_memCookie_Memcached_SessionObject_ExpiryReset` is set to `on`.
 
-Set to 3600 seconds by default.
+    Set to 3600 seconds by default.
 
 - **Auth_memCookie_Memcached_SessionObject_ExpiryReset**
 
-Set to `off` to not reset object expiry time in memcache on each url, is set to 'on' by default.
+    Set to `off` to not reset object expiry time in memcache on each url, is set to 'on' by default.
 
-By default on each request authenticated by the module, the object expiry in memcached of the `session data` are reset to make expiry base on inactivity, if set to `off` the expiry are based on session time length.
+    By default on each request authenticated by the module, the object expiry in memcached of the `session data` are reset to make expiry base on inactivity, if set to `off` the expiry are based on session time length.
 
 - **Auth_memCookie_SessionTableSize**
 
-Max number of element in session information table, is set to 10 by default.
+    Max number of element in session information table, is set to 10 by default.
 
 - **Auth_memCookie_SetSessionHTTPHeader**
 
-Set to `on` to set session information to http header of the authenticated users, is set to `off` by default.
-Each session field are sended to backend. 
-Each session field name are prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix` changed to uppercase.
+    Set to `on` to set session information to http header of the authenticated users, is set to `off` by default.
+    Each session field are sended to backend. 
+    Each session field name are prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix` changed to uppercase.
 
 - **Auth_memCookie_SetSessionHTTPHeaderEncode**
 
-Set to `on` to mime64 encode session information to http header, is set to `off` by default.
+    Set to `on` to mime64 encode session information to http header, is set to `off` by default.
 
 - **Auth_memCookie_SetSessionHTTPHeaderPrefix** 
 
-Set HTTP header prefix, is set to `MCAC_` by default.
+    Set HTTP header prefix, is set to `MCAC_` by default.
 
 - **Auth_memCookie_CookieName**
 
-Name of the cookie to used for check authentification, is set to `AuthMemCookie` by default.
+    Name of the cookie to used for check authentification, is set to `AuthMemCookie` by default.
 
 - **Auth_memCookie_MatchIP_Mode**
 
-To check cookie ip adresse, Set to `1` to use `X-Forwarded-For` http header, to `2` to use `Via` http header, and to `3` to use apache `remote_ip`, is set to `0` by default to desactivate the ip check.
+    To check cookie ip adresse, Set to `1` to use `X-Forwarded-For` http header, to `2` to use `Via` http header, and to `3` to use apache `remote_ip`, is set to `0` by default to desactivate the ip check.
 
 - **Auth_memCookie_GroupAuthoritative** (only on apache <2.4)
 
-Set to `off` to allow access control to be passed along to lower modules, for group acl check, is set to `on` by default.
+    Set to `off` to allow access control to be passed along to lower modules, for group acl check, is set to `on` by default.
 
 - **Auth_memCookie_Authoritative**
 
-Set to `off` to allow access control to be passed along to lower modules, is set to `on` by default.
+    Set to `off` to allow access control to be passed along to lower modules, is set to `on` by default.
 
 - **Auth_memCookie_SilmulateAuthBasic**
 
-Set to `off` to not fix `http header` and `auth_type` for simulating `auth basic` for scripting language like `php` authentication framework work, is set to `on` by default.
+    Set to `off` to not fix `http header` and `auth_type` for simulating `auth basic` for scripting language like `php` authentication framework work, is set to `on` by default.
 
-with this option this $_SERVER variable are normaly set on php: 
+    with this option this $_SERVER variable are normaly set on php: 
 
-```
-  AUTH_TYPE = "basic"
-  PHP_AUTH_USER = "user"
-  PHP_AUTH_PW = "password"
-```
+    ```
+      AUTH_TYPE = "basic"
+      PHP_AUTH_USER = "user"
+      PHP_AUTH_PW = "password"
+    ```
 
 - **Auth_memCookie_DisableNoStore**
 
-Set to `on` to stop the sending of a `Cache-Control` no-store header with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
+    Set to `on` to stop the sending of a `Cache-Control` no-store header with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
 
 # On the backend application
 
