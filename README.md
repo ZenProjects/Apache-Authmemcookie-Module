@@ -3,11 +3,11 @@
 
 # What is "Auth MemCookie"?
 
-"Auth MemCookie" is an Apache v2 Authentication and authorization modules are based on "cookie" Authentication mechanism.
+`Auth MemCookie` is an Apache v2 Authentication and authorization modules are based on `cookie` Authentication mechanism.
 
-The module doesn’t make Authentication by it self, but verify if Authentication "the cookie" is valid for each url protected by the module. The module validate also if the "authenticated user" have authorization to access url.
+The module doesn’t make Authentication by it self, but verify if Authentication `the cookie` is valid for each url protected by the module. The module validate also if the `authenticated user` have authorization to access url.
 
-`Authentication` is made externally by an Authentication `html form page` and all Authentication information necessary to the module a stored in [`memcached`](http://memcached.org/) identified by the cookie value "Authentication session id" by this login page.
+`Authentication` is made externally by an Authentication `html form page` and all Authentication information necessary to the module a stored in [`memcached`](http://memcached.org/) identified by the cookie value `Authentication session id` by this login page.
 
 # How it Works
 
@@ -17,9 +17,9 @@ Authentication is made by a login form page.
 
 This login page must authenticate the user with any authenticate source (ldap, /etc/password, file, database....) accessible to language of the page (php, perl, java... an ldap login page sample in php are in samples directory).
 
-Then this page must set cookie that contains only a key the "Authentication unique id" of the "Authentication session".
+Then this page must set cookie that contains only a key the `Authentication unique id` of the `Authentication session`.
 
-The login page must store authorization and user information of the authenticated user in [memcached](http://memcached.org/) identified by the cookie key "Authentication unique id".
+The login page must store authorization and user information of the authenticated user in [memcached](http://memcached.org/) identified by the cookie key `Authentication unique id`.
 
 The login page can be developed in any language you want, but must be capable to use [memcached](http://memcached.org/) (they must have memcache client api for us)
 
@@ -151,7 +151,7 @@ This option can be used in `location` or `directory` apache context.
     Set to `off` to allow access control to be passed along to lower modules, for group acl check, is set to `on` by default.
 
 - **Auth_memCookie_Authoritative**
-
+ 
     Set to `off` to allow access control to be passed along to lower modules, is set to `on` by default.
 
 - **Auth_memCookie_SilmulateAuthBasic**
