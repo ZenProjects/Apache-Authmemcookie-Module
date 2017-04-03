@@ -64,6 +64,7 @@ You must have compiled and installed:
 # Compilation
 
 ```
+# autoconf -f
 # ./configure --with-apxs=/path/to/apache/httpd/bin/apxs --with-libmemcached=/path/to/libmemcached/
 # make
 # make install
