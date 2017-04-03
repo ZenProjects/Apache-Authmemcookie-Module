@@ -15,13 +15,13 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 `Authentication` is made by a login form page.
 
-This login page must authenticate the user with any authenticate source (ldap, /etc/password, file, database....) accessible to language of the page (php, perl, java... an ldap login page sample in php are in samples directory).
+This login page must `authenticate` the `user` with any `authenticate source` (ldap, /etc/password, file, database....) accessible to `language` of the `page` (php, perl, java... an ldap login page sample in php are in samples directory).
 
-Then this page must set cookie that contains only a key the `Authentication unique id` of the `Authentication session`.
+Then this page must set `cookie` that contains only a key the `Authentication unique id` of the `Authentication session`.
 
-The login page must store authorization and user information of the authenticated user in [memcached](http://memcached.org/) identified by the cookie key `Authentication unique id`.
+The login page must `store` authorization and user information of the authenticated user in [`memcached`](http://memcached.org/) identified by the cookie key `Authentication unique id`.
 
-The login page can be developed in any language you want, but must be capable to use [memcached](http://memcached.org/) (they must have memcache client api for us)
+The `login page` can be developed in `any language you want`, but must be capable to use [`memcached`](http://memcached.org/) (they must have memcache client api for us)
 
 ## Phase 2 : The Apache v2 Module
 
@@ -29,7 +29,7 @@ After the user is logged, the Auth MemCookie module check on each protected page
 
 When authenticating a request Auth MemCookie module walks through the following steps:
 
-1. Get the **`session id`**. The `session id` is stored in a cookie (by default named `AuthMemCookie`).
+1. Get the **`session id`**. The **`session id`** is stored in a cookie (by default named `AuthMemCookie`).
 
 2. Get the **`session data`**. Auth MemCookie module fetches **`session data`** by looking up the session id on the [memcached](http://memcached.org/) server.
 
