@@ -7,7 +7,7 @@
 
 The module doesn’t make Authentication by it self, but verify if Authentication "the cookie" is valid for each url protected by the module. The module validate also if the "authenticated user" have authorization to access url.
 
-`Authentication` is made externally by an Authentication `html form page` and all Authentication information necessary to the module a stored in `memcached` identified by the cookie value "Authentication session id" by this login page.
+`Authentication` is made externally by an Authentication `html form page` and all Authentication information necessary to the module a stored in [`memcached`](http://memcached.org/) identified by the cookie value "Authentication session id" by this login page.
 
 # How it Works
 
@@ -19,9 +19,9 @@ This login page must authenticate the user with any authenticate source (ldap, /
 
 Then this page must set cookie that contains only a key the "Authentication unique id" of the "Authentication session".
 
-The login page must store authorization and user information of the authenticated user in memcached identified by the cookie key "Authentication unique id".
+The login page must store authorization and user information of the authenticated user in [memcached](http://memcached.org/) identified by the cookie key "Authentication unique id".
 
-The login page can be developed in any language you want, but must be capable to use memcached (they must have memcache client api for us)
+The login page can be developed in any language you want, but must be capable to use [memcached](http://memcached.org/) (they must have memcache client api for us)
 
 ## Phase 2 : The Apache v2 Module
 
@@ -33,9 +33,9 @@ When authenticating a request Auth MemCookie module walks through the following 
 
 2. Get the `session data`. Auth MemCookie module fetches `session data` by looking up the session id on the [memcached](http://memcached.org/) server.
 
-3. Verify the `remote ip`. Auth MemCookie checks the ip address stored in the `session data` against the ip address of the current request. This step is optional, and can be disabled by setting the `Auth_memCookie_MatchIP` option to no.
+3. Verify the `remote ip`. Auth MemCookie module checks the ip address stored in the `session data` against the ip address of the current request. This step is optional, and can be disabled by setting the `Auth_memCookie_MatchIP` option to no.
 
-4. Get username and groups from `session data`. The username is stored in the UserName field in the `session data` and the groups the user is a member of is stored in the Groups field.
+4. Get username and groups from `session data`. The username is stored in the `UserName` field in the `session data` and the groups the user is a member of is stored in the Groups field.
 
 5. Check username and groups against [`Require`](http://httpd.apache.org/docs/2.0/mod/core.html#require) configuration directives.  
 
