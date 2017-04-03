@@ -104,7 +104,7 @@ This option can be used in `location` or `directory` apache context.
 
     For exemple: 
     ```
-        Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
+    Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
     ```
 - **Auth_memCookie_Memcached_SessionObject_ExpireTime**
 
@@ -200,7 +200,7 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
 
     They also support multiple groups like that:
     ```
-     Require mcac-group group1 group2 group3
+    Require mcac-group group1 group2 group3
     ```
 
     If one match on group of the `groups` session field they are granted.
@@ -211,9 +211,9 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
     In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
 
     ```
-       <Location /publiczone>
-          Require mcac-public
-       </Location>
+    <Location /publiczone>
+      Require mcac-public
+    </Location>
     ```
 
 - **[Require valide-user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)** and **[Require user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)**
@@ -225,36 +225,36 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
 Configuration sample for using Auth_memcookie apache V2.4 module:
 
 ```
-    LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
+LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
 
-    <IfModule mod_auth_memcookie.c>
-    <Location />
-        Auth_memCookie_CookieName myauthcookie
-        Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
+<IfModule mod_auth_memcookie.c>
+<Location />
+    Auth_memCookie_CookieName myauthcookie
+    Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
 
-        # to redirect unauthorized user to the login page
-        ErrorDocument 401 "/gestionuser/login.php"
+    # to redirect unauthorized user to the login page
+    ErrorDocument 401 "/gestionuser/login.php"
 
-        # to specify if the module are autoritative in this directory
-        Auth_memCookie_Authoritative on
-        # must be set without that the refuse authentification
-        AuthType Cookie
-        # must be set (apache mandatory) but not used by the module
-        AuthName "My Login"
-        require mcac-public
-    </Location>
+    # to specify if the module are autoritative in this directory
+    Auth_memCookie_Authoritative on
+    # must be set without that the refuse authentification
+    AuthType Cookie
+    # must be set (apache mandatory) but not used by the module
+    AuthName "My Login"
+    require mcac-public
+</Location>
 
-    </IfModule>
+</IfModule>
 
-    # to protect juste user authentification
-    <Location "/myprotectedurl">
-        require valid-user
-    </Location>
+# to protect juste user authentification
+<Location "/myprotectedurl">
+    require valid-user
+</Location>
 
-    # to protect acces to user in group1
-    <Location "/myprotectedurlgroup1">
-        require mcac-group group1
-    </Location>
+# to protect acces to user in group1
+<Location "/myprotectedurlgroup1">
+    require mcac-group group1
+</Location>
 ```
 
 # Apache 2.0/2.2 [authn/authz model](http://httpd.apache.org/docs/2.2/howto/auth.html)
@@ -278,35 +278,35 @@ Configuration sample for using Auth_memcookie apache V2.4 module:
 Configuration sample for using Auth_memcookie apache V2.0 module:
 
 ```
-    LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
+LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
 
-    <IfModule mod_auth_memcookie.c>
-    <Location />
-        Auth_memCookie_CookieName myauthcookie
-        Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
+<IfModule mod_auth_memcookie.c>
+<Location />
+    Auth_memCookie_CookieName myauthcookie
+    Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
 
-        # to redirect unauthorized user to the login page
-        ErrorDocument 401 "/gestionuser/login.php"
+    # to redirect unauthorized user to the login page
+    ErrorDocument 401 "/gestionuser/login.php"
 
-        # to specify if the module are autoritative in this directory
-        Auth_memCookie_Authoritative on
-        # must be set without that the refuse authentification
-        AuthType Cookie
-        # must be set (apache mandatory) but not used by the module
-        AuthName "My Login"
-    </Location>
+    # to specify if the module are autoritative in this directory
+    Auth_memCookie_Authoritative on
+    # must be set without that the refuse authentification
+    AuthType Cookie
+    # must be set (apache mandatory) but not used by the module
+    AuthName "My Login"
+</Location>
 
-    </IfModule>
+</IfModule>
 
-    # to protect juste user authentification
-    <Location "/myprotectedurl">
-        require valid-user
-    </Location>
+# to protect juste user authentification
+<Location "/myprotectedurl">
+    require valid-user
+</Location>
 
-    # to protect acces to user in group1
-    <Location "/myprotectedurlgroup1">
-        require group group1
-    </Location>
+# to protect acces to user in group1
+<Location "/myprotectedurlgroup1">
+    require group group1
+</Location>
 ```
 
 # Releases notes
