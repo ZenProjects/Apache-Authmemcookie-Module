@@ -41,7 +41,7 @@ When authenticating a request Auth MemCookie module walks through the following 
 
 If any of the steps 1-4 fails, then Auth MemCookie will return a "**HTTP_UNAUTHORIZED**" (401) Authorization Required error. A "**HTTP_FORBIDDEN**" (403) Forbidden error will be returned if the last step fails.
 
-When a user is successfully authenticated, Auth MemCookie will store all the fields from the session data in environment variables accessible to the web page. Every field will be stored by setting MCAC_<field-name> to the value of the field. 
+When a user is successfully authenticated, Auth MemCookie will store all the fields from the `session data` in environment variables accessible to the web page. Every field will be stored by setting MCAC_<field-name> to the value of the field. 
 
 # `Session data` format stored in memcached
 
