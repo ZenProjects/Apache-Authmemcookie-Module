@@ -41,13 +41,13 @@ When authenticating a request Auth MemCookie module walks through the following 
 
 If any of the steps 1-4 fails, then Auth MemCookie will return a **`HTTP_UNAUTHORIZED`** (401) Authorization Required error. A **`HTTP_FORBIDDEN`** (403) Forbidden error will be returned if the last step fails.
 
-When a user is successfully authenticated, Auth MemCookie will store all the fields from the `session data` in environment variables accessible to the web page. Every field of the `session data` will be send http header `MCAC_<field-name>` to the value of the field. 
+When a user is successfully authenticated, Auth MemCookie will store all the fields from the **`session data`** in environment variables accessible to the web page. Every field of the **`session data`** will be send http header **`MCAC_<field-name>`** to the value of the field. 
 
 # *"Session data"* format stored in memcached
 
-The `session data` stored in [memcached](http://memcached.org/) are composed with multiple line in form of **`name`** equal **`value`** ended by **`\r\n`**. some are mandatory, other are optional and the rest are information only (all this field are transmitted to the script language protect the module).
+The **`session data`** stored in [memcached](http://memcached.org/) are composed with multiple line in form of **`name`** equal **`value`** ended by **`\r\n`**. some are mandatory, other are optional and the rest are information only (all this field are transmitted to the script language protect the module).
 
-`Session data` format:
+**`Session data`** format:
 
     UserName=<user name>\r\n
     Groups=<group name1>:<group name2>:...\r\n
