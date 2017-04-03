@@ -14,8 +14,8 @@ AC_DEFUN([LIBMEMCACHED_WITH],[
   else
     ARCH=$(uname -m)
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-    if test -d "${with_libmemcached}/${ARCH}-${OS}-gnu"; then 
-      LIBDIR="${ARCH}-${OS}-gnu"
+    if test -d "${with_libmemcached}/lib/${ARCH}-${OS}-gnu"; then 
+      LIBDIR="lib/${ARCH}-${OS}-gnu"
     else
       LONG_BIT=$(getconf LONG_BIT)
       if test "$LONG_BIT" -eq 64; then 
