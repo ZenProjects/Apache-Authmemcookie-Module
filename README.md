@@ -116,7 +116,7 @@ This option can be used in `location` or `directory` apache context.
 
 - **Auth_memCookie_Memcached_SessionObject_ExpiryReset**
 
-    Set to `off` to not reset object expiry time in memcache on each url, is set to 'on' by default.
+    Set to `off` to not reset object expiry time in memcache on each url, is set to `on` by default.
 
     By default on each request authenticated by the module, the object expiry in memcached of the `session data` are reset to make expiry base on inactivity, if set to `off` the expiry are based on session time length.
 
