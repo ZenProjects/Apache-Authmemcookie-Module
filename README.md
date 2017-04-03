@@ -1,9 +1,6 @@
 [![Build Status](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module.svg?branch=master)](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
-AuthMemCookie Apache Module
-=============
-
 # What is "Auth MemCookie"?
 
 "Auth MemCookie" is an Apache v2 Authentication and authorization modules are based on "cookie" Authentication mechanism.
