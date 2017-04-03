@@ -41,7 +41,7 @@ When authenticating a request Auth MemCookie module walks through the following 
 
 If any of the steps 1-4 fails, then Auth MemCookie will return a "**HTTP_UNAUTHORIZED**" (401) Authorization Required error. A "**HTTP_FORBIDDEN**" (403) Forbidden error will be returned if the last step fails.
 
-When a user is successfully authenticated, Auth MemCookie will store all the fields from the `session data` in environment variables accessible to the web page. Every field will be stored by setting MCAC_<field-name> to the value of the field. 
+When a user is successfully authenticated, Auth MemCookie will store all the fields from the `session data` in environment variables accessible to the web page. Every field of the `session data` will be send http header `MCAC_<field-name>` to the value of the field. 
 
 # `Session data` format stored in memcached
 
@@ -87,13 +87,13 @@ You must have compiled and installed:
 # make install
 ```
 
-After that the "mod_auth_memcookie.so" is generated in apache "modules" directory.
+After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
 
 # How to configure Apache Module
 
 ## Module configuration option:
 
-This option can be used in "location" or "directory" apache context.
+This option can be used in `location` or `directory` apache context.
 
 - **Auth_memCookie_Memcached_Configuration**
 
@@ -104,19 +104,21 @@ With that directive you can specify a liste of ip or host adresse(s) and port ':
 
 For exemple: 
 ```
-    Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com --SERVER=host11.example.com --SERVER=host10.example.com"
+    Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
 ```
 - **Auth_memCookie_Memcached_SessionObject_ExpireTime**
 
 Session object stored in memcached expiry time, in secondes. 
 
-Used only if "Auth_memCookie_Memcached_SessionObject_ExpiryReset" is set to 'on'.
+Used only if `Auth_memCookie_Memcached_SessionObject_ExpiryReset` is set to `on`.
 
 Set to 3600 seconds by default.
 
 - **Auth_memCookie_Memcached_SessionObject_ExpiryReset**
 
-Set to 'off' to not reset object expiry time in memcache on each url, is set to 'on' by default.
+Set to `off` to not reset object expiry time in memcache on each url, is set to 'on' by default.
+
+By default on each request authenticated by the module, the object expiry in memcached of the `session data` are reset to make expiry base on inactivity, if set to `off` the expiry are based on session time length.
 
 - **Auth_memCookie_SessionTableSize**
 
@@ -124,84 +126,89 @@ Max number of element in session information table, is set to 10 by default.
 
 - **Auth_memCookie_SetSessionHTTPHeader**
 
-Set to 'on' to set session information to http header of the authenticated users, is set to 'off' by default.
+Set to `on` to set session information to http header of the authenticated users, is set to `off` by default.
 Each session field are sended to backend. 
-Each session field name are prefixed by Auth_memCookie_SetSessionHTTPHeaderPrefix changed to uppercase.
+Each session field name are prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix` changed to uppercase.
 
 - **Auth_memCookie_SetSessionHTTPHeaderEncode**
 
-Set to 'on' to mime64 encode session information to http header, is set to 'off' by default.
+Set to `on` to mime64 encode session information to http header, is set to `off` by default.
 
 - **Auth_memCookie_SetSessionHTTPHeaderPrefix** 
 
-Set HTTP header prefix, is set to 'MCAC_' by default.
+Set HTTP header prefix, is set to `MCAC_` by default.
 
 - **Auth_memCookie_CookieName**
 
-Name of the cookie to used for check authentification, is set to "AuthMemCookie" by default.
+Name of the cookie to used for check authentification, is set to `AuthMemCookie` by default.
 
 - **Auth_memCookie_MatchIP_Mode**
 
-To check cookie ip adresse, Set to '1' to use 'X-Forwarded-For' http header, to '2' to use 'Via' http header, and to '3' to use apache remote_ip, is set to '0' by default to desactivate the ip check.
+To check cookie ip adresse, Set to `1` to use `X-Forwarded-For` http header, to `2` to use `Via` http header, and to `3` to use apache `remote_ip`, is set to `0` by default to desactivate the ip check.
 
 - **Auth_memCookie_GroupAuthoritative** (only on apache <2.4)
 
-Set to 'off' to allow access control to be passed along to lower modules, for group acl check, is set to 'on' by default.
+Set to `off` to allow access control to be passed along to lower modules, for group acl check, is set to `on` by default.
 
 - **Auth_memCookie_Authoritative**
 
-Set to 'off' to allow access control to be passed along to lower modules, is set to 'on' by default.
+Set to `off` to allow access control to be passed along to lower modules, is set to `on` by default.
 
 - **Auth_memCookie_SilmulateAuthBasic**
 
-Set to 'off' to not fix http header and auth_type for simulating auth basic for scripting language like php auth framework work, is set to 'on' by default.
+Set to `off` to not fix `http header` and `auth_type` for simulating `auth basic` for scripting language like `php` authentication framework work, is set to `on` by default.
 
 with this option this $_SERVER variable are normaly set on php: 
+
+```
   AUTH_TYPE = "basic"
   PHP_AUTH_USER = "user"
   PHP_AUTH_PW = "password"
+```
 
 - **Auth_memCookie_DisableNoStore**
 
-Set to 'on' to stop the sending of a Cache-Control no-store header with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
+Set to `on` to stop the sending of a `Cache-Control` no-store header with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
 
 # On the backend application
 
 The application recieve this information: 
 
-- REMOTE_USER are set to the user logged name
-- AUTHMEMCOOKIE_PREFIX are set to Auth_memCookie_SetSessionHTTPHeaderPrefix
-- AUTHMEMCOOKIE_AUTH are set to "yes" when protected, "no" when in public zone.
+- `REMOTE_USER` are set to the user logged name
+- `AUTHMEMCOOKIE_PREFIX` are set to value of `Auth_memCookie_SetSessionHTTPHeaderPrefix`
+- `AUTHMEMCOOKIE_AUTH` are set to `yes` when protected, `no` when in public zone.
 
-And all session field (prefixed by Auth_memCookie_SetSessionHTTPHeaderPrefix/AUTHMEMCOOKIE_PREFIX) if Auth_memCookie_SetSessionHTTPHeader is on.
+And all session field (prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix`/`AUTHMEMCOOKIE_PREFIX`) if `Auth_memCookie_SetSessionHTTPHeader` is `on`.
 
 And if Auth_memCookie_SilmulateAuthBasic is set, they recieve also this $_SERVER variable : 
 
-- AUTH_TYPE = "basic"
-- PHP_AUTH_USER = "user"
-- PHP_AUTH_PW = "password"
+```
+  AUTH_TYPE = "basic"
+  PHP_AUTH_USER = "user"
+  PHP_AUTH_PW = "password"
+```
 
 # Apache 2.3/2.4 [authn/authz model](https://httpd.apache.org/docs/2.4/howto/auth.html)
 
-The module add some ["Require"/"authz"](https://httpd.apache.org/docs/2.4/mod/mod_authz_core.html#require) provider:
+The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mod_authz_core.html#require) provider:
 
 - **Require mcac-group**
 
-To limit access to groups specified in session ("groups" session field) by the login script.
-Use the same syntax than ["Require group"](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html#requiredirectives).
-But "Require group" on apache 2.3/2.4 work only with [mod_authz_groupfile](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html).
+To limit access to groups specified in session (`groups` session field) by the login script.
+Use the same syntax than [`Require group`](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html#requiredirectives).
+But `Require group` on apache 2.3/2.4 work only with [mod_authz_groupfile](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html).
 
 They also support multiple groups like that:
 ```
  Require mcac-group group1 group2 group3
 ```
 
-If one match on group of the "groups" session field they are granted.
+If one match on group of the `groups` session field they are granted.
 
 - **Require mcac-public**
 
 They make possible to specify public access zone.
-In that zone authenticated or not are granted but authenticated can send session information to backend depend on Auth_memCookie_SetSessionHTTPHeader flag.
+In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
 
 ```
    <Location /publiczone>
