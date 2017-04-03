@@ -13,7 +13,7 @@ The module doesn’t make Authentication by it self, but verify if Authenticatio
 
 ## Phase 1 : The login Form
 
-Authentication is made by a login form page.
+`Authentication` is made by a login form page.
 
 This login page must authenticate the user with any authenticate source (ldap, /etc/password, file, database....) accessible to language of the page (php, perl, java... an ldap login page sample in php are in samples directory).
 
@@ -29,13 +29,13 @@ After the user is logged, the Auth MemCookie module check on each protected page
 
 When authenticating a request Auth MemCookie module walks through the following steps:
 
-1. Get the `session id`. The `session id` is stored in a cookie (by default named `AuthMemCookie`).
+1. Get the **`session id`**. The `session id` is stored in a cookie (by default named `AuthMemCookie`).
 
-2. Get the `session data`. Auth MemCookie module fetches `session data` by looking up the session id on the [memcached](http://memcached.org/) server.
+2. Get the **`session data`**. Auth MemCookie module fetches **`session data`** by looking up the session id on the [memcached](http://memcached.org/) server.
 
-3. Verify the `remote ip`. Auth MemCookie module checks the ip address stored in the `session data` against the ip address of the current request. This step is optional, and can be disabled by setting the `Auth_memCookie_MatchIP` option to no.
+3. Verify the **`remote ip`**. Auth MemCookie module checks the ip address stored in the **`session data`** against the ip address of the current request. This step is optional, and can be disabled by setting the **`Auth_memCookie_MatchIP`** option to no.
 
-4. Get username and groups from `session data`. The username is stored in the `UserName` field in the `session data` and the groups the user is a member of is stored in the Groups field.
+4. Get username and groups from **`session data`**. The username is stored in the **`UserName`** field in the **`session data`** and the groups the user is a member of is stored in the Groups field.
 
 5. Check username and groups against [`Require`](http://httpd.apache.org/docs/2.0/mod/core.html#require) configuration directives.  
 
