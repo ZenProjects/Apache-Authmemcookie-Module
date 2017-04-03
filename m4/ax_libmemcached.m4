@@ -13,15 +13,11 @@ AC_DEFUN([LIBMEMCACHED_WITH],[
     AC_MSG_ERROR( Specify where is the libmemcached directory using --with-libmemcached)
   else
     ARCH=$(uname -m)
-    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-    if test -d "${with_libmemcached}/lib/${ARCH}-${OS}-gnu"; then 
-      LIBDIR="lib/${ARCH}-${OS}-gnu"
-    else
-      LONG_BIT=$(getconf LONG_BIT)
-      if test "$LONG_BIT" -eq 64; then 
+    LONG_BIT=$(getconf LONG_BIT)
+    LIBDIR=lib
+    if test "$LONG_BIT" -eq 64; then 
+      if test -d $with_libmemcached/lib64; then
         LIBDIR=lib64
-      else
-        LIBDIR=lib
       fi
     fi
     LIBMEMCACHED_INCLUDE_DIR=$with_libmemcached/include
