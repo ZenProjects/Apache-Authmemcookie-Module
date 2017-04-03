@@ -61,6 +61,8 @@ You must have compiled and installed:
 
 - [libmemcached](http://libmemcached.org/) the C client API needed to compile the Apache Module.
 
+- [autoconf](https://www.gnu.org/software/autoconf/autoconf.html) the gnu autotool to rebuild configure script from autoconf.ac and m4 files.
+
 # Compilation
 
 ```
