@@ -76,7 +76,7 @@ You must have compiled and installed:
 
 - [libmemcached](http://libmemcached.org/) the C client API needed to compile the Apache Module.
 
-- [autoconf](https://www.gnu.org/software/autoconf/autoconf.html) the gnu autotool to rebuild configure script from autoconf.ac and m4 files.
+- [autoconf](https://www.gnu.org/software/autoconf/autoconf.html) the gnu autotool to rebuild configure script from `autoconf.ac` and m4 files.
 
 # Compilation
 
@@ -100,12 +100,13 @@ This option can be used in `location` or `directory` apache context.
     This configuration directive permit to configure libmemcached initialisation.
     The syntax of this directive value are defined her: http://docs.libmemcached.org/libmemcached_configuration.html
 
-    With that directive you can specify a liste of ip or host adresse(s) and port ':' separed of memcache(s) daemon to be used.
+    With that directive you can specify a liste of ip or host adresse(s) and port `:` separed of memcache(s) daemon to be used.
 
     For exemple: 
     ```
     Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
     ```
+    
 - **Auth_memCookie_Memcached_SessionObject_ExpireTime**
 
     Session object stored in memcached expiry time, in secondes. 
@@ -168,7 +169,7 @@ This option can be used in `location` or `directory` apache context.
 
 - **Auth_memCookie_DisableNoStore**
 
-    Set to `on` to stop the sending of a `Cache-Control` no-store header with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
+    Set to `on` to stop the sending of a `Cache-Control` header set to `no-store` with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
 
 # On the backend application
 
@@ -180,7 +181,7 @@ The application recieve this information:
 
 And all session field (prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix`/`AUTHMEMCOOKIE_PREFIX`) if `Auth_memCookie_SetSessionHTTPHeader` is `on`.
 
-And if Auth_memCookie_SilmulateAuthBasic is set, they recieve also this $_SERVER variable : 
+And if `Auth_memCookie_SilmulateAuthBasic` is set, they recieve also this `$_SERVER` variable : 
 
 ```
   AUTH_TYPE = "basic"
@@ -208,6 +209,7 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
 - **Require mcac-public**
 
     They make possible to specify public access zone.
+    
     In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
 
     ```
