@@ -194,116 +194,120 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
 
 - **Require mcac-group**
 
-To limit access to groups specified in session (`groups` session field) by the login script.
-Use the same syntax than [`Require group`](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html#requiredirectives).
-But `Require group` on apache 2.3/2.4 work only with [mod_authz_groupfile](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html).
+    To limit access to groups specified in session (`groups` session field) by the login script.
+    Use the same syntax than [`Require group`](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html#requiredirectives).
+    But `Require group` on apache 2.3/2.4 work only with [mod_authz_groupfile](https://httpd.apache.org/docs/2.4/mod/mod_authz_groupfile.html).
 
-They also support multiple groups like that:
-```
- Require mcac-group group1 group2 group3
-```
+    They also support multiple groups like that:
+    ```
+     Require mcac-group group1 group2 group3
+    ```
 
-If one match on group of the `groups` session field they are granted.
+    If one match on group of the `groups` session field they are granted.
 
 - **Require mcac-public**
 
-They make possible to specify public access zone.
-In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
+    They make possible to specify public access zone.
+    In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
 
-```
-   <Location /publiczone>
-      Require mcac-public
-   </Location>
-```
+    ```
+       <Location /publiczone>
+          Require mcac-public
+       </Location>
+    ```
 
 - **[Require valide-user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)** and **[Require user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)**
 
-All the two a provided by [mod_authz_user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html) core apache module.
+    All the two a provided by [mod_authz_user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html) core apache module.
 
 ## Sample to configure Apache v2.4 Module:
 
 Configuration sample for using Auth_memcookie apache V2.4 module:
 
+```
     LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
 
     <IfModule mod_auth_memcookie.c>
-     <Location />
-     Auth_memCookie_CookieName myauthcookie
-     Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
+    <Location />
+        Auth_memCookie_CookieName myauthcookie
+        Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
 
-     # to redirect unauthorized user to the login page
-     ErrorDocument 401 "/gestionuser/login.php"
+        # to redirect unauthorized user to the login page
+        ErrorDocument 401 "/gestionuser/login.php"
 
-     # to specify if the module are autoritative in this directory
-     Auth_memCookie_Authoritative on
-     # must be set without that the refuse authentification
-     AuthType Cookie
-     # must be set (apache mandatory) but not used by the module
-     AuthName "My Login"
-     require mcac-public
-     </Location>
+        # to specify if the module are autoritative in this directory
+        Auth_memCookie_Authoritative on
+        # must be set without that the refuse authentification
+        AuthType Cookie
+        # must be set (apache mandatory) but not used by the module
+        AuthName "My Login"
+        require mcac-public
+    </Location>
 
     </IfModule>
 
     # to protect juste user authentification
     <Location "/myprotectedurl">
-     require valid-user
+        require valid-user
     </Location>
 
     # to protect acces to user in group1
     <Location "/myprotectedurlgroup1">
-     require mcac-group group1
+        require mcac-group group1
     </Location>
+```
 
 # Apache 2.0/2.2 [authn/authz model](http://httpd.apache.org/docs/2.2/howto/auth.html)
 
 - **Require group groupname [groupname]...**
 
-Only users with the specified groups can access the resource.
+    Only users with the specified groups can access the resource.
 
 - **Require valid-user**
 
-Any valid user can access the resource.
+    Any valid user can access the resource.
 
 - **Require user user_id [user_id]...**
 
-Only specified users can access the resource.
+    Only specified users can access the resource.
 
-all this directive are from [mod_auth_basic](http://httpd.apache.org/docs/2.2/mod/core.html#require) module.
+    all this directive are from [mod_auth_basic](http://httpd.apache.org/docs/2.2/mod/core.html#require) module.
 
 ## Sample to configure Apache v2.0 Module:
 
 Configuration sample for using Auth_memcookie apache V2.0 module:
 
+```
     LoadModule mod_auth_memcookie_module modules/mod_auth_memcookie.so
 
     <IfModule mod_auth_memcookie.c>
-     <Location />
-     Auth_memCookie_CookieName myauthcookie
-     Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
+    <Location />
+        Auth_memCookie_CookieName myauthcookie
+        Auth_memCookie_Memcached_Configuration --SERVER=127.0.0.1:11000
 
-     # to redirect unauthorized user to the login page
-     ErrorDocument 401 "/gestionuser/login.php"
+        # to redirect unauthorized user to the login page
+        ErrorDocument 401 "/gestionuser/login.php"
 
-     # to specify if the module are autoritative in this directory
-     Auth_memCookie_Authoritative on
-     # must be set without that the refuse authentification
-     AuthType Cookie
-     # must be set (apache mandatory) but not used by the module
-     AuthName "My Login"
-     </Location>
+        # to specify if the module are autoritative in this directory
+        Auth_memCookie_Authoritative on
+        # must be set without that the refuse authentification
+        AuthType Cookie
+        # must be set (apache mandatory) but not used by the module
+        AuthName "My Login"
+    </Location>
 
     </IfModule>
 
     # to protect juste user authentification
     <Location "/myprotectedurl">
-     require valid-user
+        require valid-user
     </Location>
 
     # to protect acces to user in group1
     <Location "/myprotectedurlgroup1">
-     require group group1
+        require group group1
     </Location>
+```
 
 # Releases notes
 
