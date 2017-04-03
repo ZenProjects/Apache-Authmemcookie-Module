@@ -707,6 +707,7 @@ static int Auth_memCookie_check_auth(request_rec *r)
     /* walk throug the array to check eatch require command */
     for (x = 0; x < reqs_arr->nelts; x++) {
 
+      // skip require elt if request method 'm' not match the require method_mask
       if (!(reqs[x].method_mask & (AP_METHOD_BIT << m)))
 	  continue;
 
