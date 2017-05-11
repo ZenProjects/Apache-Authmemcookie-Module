@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module.svg?branch=master)](https://travis-ci.org/ZenProjects/Apache-Authmemcookie-Module)
+[![CircleCI](https://circleci.com/gh/ZenProjects/Apache-Authmemcookie-Module.svg?style=shield)](https://circleci.com/gh/ZenProjects/Apache-Authmemcookie-Module)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
 # What is "Auth MemCookie"?
