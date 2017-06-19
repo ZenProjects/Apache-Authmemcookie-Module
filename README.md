@@ -75,7 +75,7 @@ You must have compiled and installed:
 
 - [memcached](http://memcached.org/) the cache daemon it self.
 
-- [libmemcached](http://libmemcached.org/) the C client API needed to compile the Apache Module.
+- [libmemcached](http://libmemcached.org/) v1.0 minimum, the C client API needed to compile the Apache Module.
 
 - [autoconf](https://www.gnu.org/software/autoconf/autoconf.html) the gnu autotool to rebuild configure script from `autoconf.ac` and m4 files.
 
