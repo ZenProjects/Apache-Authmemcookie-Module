@@ -742,7 +742,7 @@ static int Auth_memCookie_check_auth(request_rec *r)
 	    if (szGroups==NULL) {
 		 ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, LOGTAG_PREFIX
 				   "authorization denied: no group asociated to the session");
-		 return AUTHZ_DENIED;
+		 return AUTH_DENIED;
 	    }
 	    while(*szRequireLine && (szGroup = ap_getword_white(r->pool, &szRequireLine))) {
 	       ap_log_rerror(APLOG_MARK, APLOG_INFO|APLOG_NOERRNO, 0, r ,LOGTAG_PREFIX  "check group '%s' in '%s'",szGroup,szGroups);
