@@ -48,7 +48,7 @@
 #include "libmemcached-1.0/memcached.h"
 
 #define LOGTAG_PREFIX "Auth_memCookie: "
-#define VERSION "2.0.0"
+#define VERSION "2.0.1"
 #define unless(c) if(!(c))
 
 /* apache module name */
