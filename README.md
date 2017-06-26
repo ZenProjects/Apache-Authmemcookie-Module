@@ -99,7 +99,7 @@ This option can be used in `location` or `directory` apache context.
 - **Auth_memCookie_Memcached_Configuration**
 
     This configuration directive permit to configure libmemcached initialisation.
-    The syntax of this directive value are defined her: http://docs.libmemcached.org/libmemcached_configuration.html
+    The syntax of this directive value are defined her: [http://docs.libmemcached.org/libmemcached_configuration.html](http://bazaar.launchpad.net/~tangent-trunk/libmemcached/1.0/view/head:/docs/source/libmemcached_configuration.rst)
 
     With that directive you can specify a liste of ip or host adresse(s) and port `:` separed of memcache(s) daemon to be used.
 
