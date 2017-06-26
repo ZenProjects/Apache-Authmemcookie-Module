@@ -159,7 +159,6 @@ static void fix_headers_in(request_rec *r,char*szPassword)
 
      /* set authorization header */
      apr_table_set(r->headers_in,"Authorization", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
-     apr_table_set(r->headers_out,"Authorization", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
      apr_table_set(r->subprocess_env,"PHP_AUTH_DIGEST_RAW", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
      apr_table_set(r->subprocess_env,"HTTP_AUTHORIZATION", (char*)apr_pstrcat(r->pool,"Basic ",szB64_enc_user,NULL));
 
@@ -350,12 +349,14 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
 
       /* set string header */
       apr_table_setn(r->subprocess_env,szHeaderName,(char*)szB64_enc_string);
+      apr_table_setn(r->headers_in,szHeaderName,(char*)szB64_enc_string);
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szB64_enc_string);
     }
     else
     {
       /* set string header */
       apr_table_setn(r->subprocess_env,szHeaderName,(char*)szValue);
+      apr_table_setn(r->headers_in,szHeaderName,(char*)szValue);
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szValue);
     }
     return 1;
@@ -504,15 +505,19 @@ static int Auth_memCookie_check_cookie(request_rec *r)
 
     /* set MCAC_SESSIONKEY var for scripts language */
     apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
+    apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
 
     /* HTTP Header Prefix */
     apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
+    apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
 
     /* cookie found the user is authentified */
     apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
+    apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","yes");
 
     /* set REMOTE_USER var for scripts language */
     apr_table_setn(r->subprocess_env,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
+    apr_table_setn(r->headers_in,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
     
     /* log authorisation ok */
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "authentication ok");
@@ -570,12 +575,15 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
 
       /* set MCAC_SESSIONKEY var for scripts language */
       apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
+      apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
     
       /* HTTP Header Prefix */
       apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
+      apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
 
       /* cookie found but they are in public zone */
       apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","no");
+      apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","no");
 
     }
     return nReturn;
