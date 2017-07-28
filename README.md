@@ -83,7 +83,7 @@ You must have compiled and installed:
 
 ```
 # autoconf -f
-# ./configure --with-apxs=/path/to/apache/httpd/bin/apxs --with-libmemcached=/path/to/libmemcached/
+# ./configure --with-apxs=/path/to/apache/httpd/bin/apxs --with-libmemcached=/path/to/libmemcached_install_dir/
 # make
 # make install
 ```
