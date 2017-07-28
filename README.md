@@ -88,6 +88,9 @@ You must have compiled and installed:
 # make install
 ```
 
+- where --with-libmemcached is the installation directory of libmemcached library
+- where --with-apxs= is the path of apache apxs2 build script
+
 After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
 
 # How to configure Apache Module
