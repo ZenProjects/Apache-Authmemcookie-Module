@@ -71,6 +71,8 @@ The session field size is for the moment limited to 10 fields by default.
 
 You must have compiled and installed:
 
+- [Apache HTTPD](https://httpd.apache.org/) Apache HTTPD server (**Requires v2.0+**).
+
 - [libevent](http://libevent.org/) use by [memcached](http://memcached.org/).
 
 - [memcached](http://memcached.org/) the cache daemon it self.
@@ -90,13 +92,14 @@ You must have compiled and installed:
 
 - where --with-libmemcached is the installation directory of libmemcached (**require v1.0+**) library.
 
-  *Generaly with libmemcached package of the os you need simply to specify *--with-libmemcached=/usr**.*
+  *Generaly with libmemcached package of the os you need simply to specify **--with-libmemcached=/usr**.*
     * *debian version wheezy, jessie, stretch, buster, sid have v1.0 packaged.*
     * *centos/rhel you need v7 to have libmemcached v1.0 packaged*
     * *fedora v25+ have v1.0 packaged*
     * *ubuntu trusty, xenial, yakkety, zesty, artful have v1.0 packaged.*
 
-- where --with-apxs= is the path of apache apxs2 build script
+- where --with-apxs= is the path of apache apxs2 build script (require apache v2.0+)
+  *Generaly with apache httpd os package you simply need to specify **--with-apxs=/usr/bin/apxs** or **--with-apxs=/usr/sbin/apxs**.*
 
 After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
 
