@@ -75,7 +75,7 @@ You must have compiled and installed:
 
 - [memcached](http://memcached.org/) the cache daemon it self.
 
-- [libmemcached](http://libmemcached.org/) v1.0 minimum, the C client API needed to compile the Apache Module.
+- [libmemcached](http://libmemcached.org/) the C client API needed to compile the Apache Module (**require v1.0+**).
 
 - [autoconf](https://www.gnu.org/software/autoconf/autoconf.html) the gnu autotool to rebuild configure script from `autoconf.ac` and m4 files.
 
@@ -88,7 +88,14 @@ You must have compiled and installed:
 # make install
 ```
 
-- where --with-libmemcached is the installation directory of libmemcached library
+- where --with-libmemcached is the installation directory of libmemcached (**require v1.0+**) library.
+
+  *Generaly with libmemcached package of the os you need simply to specify *--with-libmemcached=/usr**.*
+    * *debian version wheezy, jessie, stretch, buster, sid have v1.0 packaged.*
+    * *centos/rhel you need v7 to have libmemcached v1.0 packaged*
+    * *fedora v25+ have v1.0 packaged*
+    * *ubuntu trusty, xenial, yakkety, zesty, artful have v1.0 packaged.*
+
 - where --with-apxs= is the path of apache apxs2 build script
 
 After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
