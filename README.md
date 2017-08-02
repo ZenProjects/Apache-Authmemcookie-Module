@@ -92,14 +92,15 @@ You must have compiled and installed:
 
 - where --with-libmemcached is the installation directory of libmemcached (**require v1.0+**) library.
 
-  *Generaly with libmemcached package of the os you need simply to specify **--with-libmemcached=/usr**.*
+  *Generaly with libmemcached os package you need simply to specify **--with-libmemcached=/usr**. They require generaly to install libmemcached developper package.*
     * *debian version wheezy, jessie, stretch, buster, sid have v1.0 packaged.*
     * *centos/rhel you need v7 to have libmemcached v1.0 packaged*
     * *fedora v25+ have v1.0 packaged*
     * *ubuntu trusty, xenial, yakkety, zesty, artful have v1.0 packaged.*
 
-- where --with-apxs= is the path of apache apxs2 build script (require apache v2.0+)
-  *Generaly with apache httpd os package you simply need to specify **--with-apxs=/usr/bin/apxs** or **--with-apxs=/usr/sbin/apxs**.*
+- where --with-apxs= is the path of apache apxs2 build script (**require apache v2.0+**).
+
+  *Generaly with apache httpd os package you simply need to specify **--with-apxs=/usr/bin/apxs** or **--with-apxs=/usr/sbin/apxs** (the default path depend on the distribution, you can find it with `type apxs` shell command). They require generaly to install apache developper package.*
 
 After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
 
