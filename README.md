@@ -102,7 +102,7 @@ You must have compiled and installed:
 
   *Generaly with apache httpd os package you simply need to specify **--with-apxs=/usr/bin/apxs** or **--with-apxs=/usr/sbin/apxs** (the default path depend on the distribution, you can find it with `type apxs` shell command). They require generaly to install apache developper package.*
 
-After that the `mod_auth_memcookie.so` is generated in apache `modules` directory.
+After that the `mod_auth_memcookie.so` is generated in apache `modules` installation directory.
 
 # How to configure Apache Module
 
