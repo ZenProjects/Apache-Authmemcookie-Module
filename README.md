@@ -122,7 +122,7 @@ This option can be used in `location` or `directory` apache context.
     Auth_memCookie_Memcached_Configuration "--SERVER=host10.example.com:port1 --SERVER=host11.example.com:port2 --SERVER=host10.example.com:port3"
     ```
     
-    To use consistant distribution of hash on multiple memcached server add `--DISTRIBUTION=consistent` and for replication `--NUMBER-OF-REPLICAS=2`. But your login page must use the same algorithm than libmemcached library that by default use the ketama algorithm wiht md5 hash.
+    To use consistant distribution of hash on multiple memcached server add `--DISTRIBUTION=consistent` and for replication `--NUMBER-OF-REPLICAS=2`. But your login page must use the same algorithm than libmemcached library that by default use the ketama distribution algorithm with md5 hash.
     
     For example with php you can use [PECL Memcached extension](https://pecl.php.net/package/memcached) that are also based on libmemcached library that support the same consistant distribution algorithm before add server list.
     
