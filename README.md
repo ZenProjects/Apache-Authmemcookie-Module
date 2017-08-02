@@ -90,7 +90,7 @@ You must have compiled and installed:
 # make install
 ```
 
-- where --with-libmemcached is the installation directory of libmemcached (**require v1.0+**) library.
+- where **--with-libmemcached** is the installation directory of libmemcached (**require v1.0+**) library.
 
   *Generaly with libmemcached os package you need simply to specify **--with-libmemcached=/usr**. They require generaly to install libmemcached developper package.*
     * *debian version wheezy, jessie, stretch, buster, sid have v1.0 packaged.*
@@ -98,7 +98,7 @@ You must have compiled and installed:
     * *fedora v25+ have v1.0 packaged*
     * *ubuntu trusty, xenial, yakkety, zesty, artful have v1.0 packaged.*
 
-- where --with-apxs= is the path of apache apxs2 build script (**require apache v2.0+**).
+- where **--with-apxs=** is the path of apache apxs2 build script (**require apache v2.0+**).
 
   *Generaly with apache httpd os package you simply need to specify **--with-apxs=/usr/bin/apxs** or **--with-apxs=/usr/sbin/apxs** (the default path depend on the distribution, you can find it with `type apxs` shell command). They require generaly to install apache developper package.*
 
