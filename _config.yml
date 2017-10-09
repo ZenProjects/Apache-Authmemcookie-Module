@@ -3,6 +3,8 @@ description: "&quot;Auth MemCookie&quot; is an Apache v2 Authentication and auth
 google_analytics: UA-3441258-7
 show_downloads: true
 theme: jekyll-theme-cayman
-
+keywords: Apache, module, authentication, authorization, sso, memcached, simplesaml, opensso
 gems:
   - jekyll-mentions
+plugins:
+  - jekyll-sitemap
