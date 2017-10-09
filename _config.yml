@@ -6,7 +6,7 @@ repository_name: AuthMemCookie Apache Module
 owner_url: https://github.com/mcarbonneaux
 owner_name: mcarbonneaux
 show_downloads: true
-is_project_page: true
+is_project_page: false
 theme: jekyll-theme-cayman
 keywords: Apache, module, authentication, authorization, sso, memcached, simplesaml, opensso
 gems:
