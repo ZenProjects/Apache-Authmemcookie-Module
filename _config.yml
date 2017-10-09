@@ -1,6 +1,10 @@
 title: AuthMemCookie Apache Module
 description: "&quot;Auth MemCookie&quot; is an Apache v2 Authentication and authorization </br > modules based on &quot;cookie&quot; Authentication mechanism"
 google_analytics: UA-3441258-7
+repository_url: https://github.com/ZenProjects/Apache-Authmemcookie-Module
+repository_name: AuthMemCookie Apache Module
+owner_url: https://github.com/mcarbonneaux
+owner_name: mcarbonneaux
 show_downloads: true
 is_project_page: true
 theme: jekyll-theme-cayman
