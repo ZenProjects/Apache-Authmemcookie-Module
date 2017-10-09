@@ -11,5 +11,3 @@ theme: jekyll-theme-cayman
 keywords: Apache, module, authentication, authorization, sso, memcached, simplesaml, opensso
 gems:
   - jekyll-mentions
-plugins:
-  - jekyll-sitemap
