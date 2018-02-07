@@ -196,6 +196,21 @@ This option can be used in `location` or `directory` apache context.
 
     Set to `on` to stop the sending of a `Cache-Control` header set to `no-store` with the login screen. This allows the browser to cache the credentials, but at the risk of it being possible for the login form to be resubmitted and revealed to the backend server through XSS. Use at own risk.
 
+- **Auth_memCookie_SASLAuth**
+
+    Set to `on` to enable SASL authentication. If this is set, `Auth_memCookie_SASLUsername` and
+    `Auth_memcookie_SASLPassword` should also be set. Defaults to `off`.
+
+- **Auth_memCookie_SASLUsername**
+
+    Username to use when authenticating to memcached if `Auth_memCookie_SASLAuth` is `on`.
+    Defaults to `user`.
+
+- **Auth_memCookie_SASLPassword**
+
+    Password to use when authenticating to memcached if `Auth_memCookie_SASLAuth` is `on`.
+    Defaults to `pass`.
+
 # On the backend application
 
 The application recieve this information: 
