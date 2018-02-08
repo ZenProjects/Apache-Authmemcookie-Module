@@ -75,7 +75,9 @@ typedef struct {
 
     int 	nAuth_memCookie_authbasicfix;
     int 	nAuth_memCookie_disable_no_store;
-
+    int 	nAuth_memCookie_SASLAuth;
+    char *	szAuth_memCookie_SASLUsername;
+    char *	szAuth_memCookie_SASLPassword;
 } strAuth_memCookie_config_rec;
 
 /***********************************************************************
@@ -210,6 +212,14 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
 	 return NULL;
     }
 
+    if(conf->nAuth_memCookie_SASLAuth) {
+        rc = memcached_set_sasl_auth_data(memc, conf->szAuth_memCookie_SASLUsername, conf->szAuth_memCookie_SASLPassword);
+        if(rc != MEMCACHED_SUCCESS) {
+            ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX
+                    "Failed to set SASL credentials: %s", memcached_last_error_message(memc));
+        }
+    }
+
     unless(pMySession=apr_table_make(r->pool,conf->nAuth_memCookie_SessionTableSize)) {
        ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r, LOGTAG_PREFIX "apr_tablemake failed");
        return NULL;
@@ -217,9 +227,22 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
 
     /* get value for the key 'szCookieValue' in memcached server */
     unless(szValue=(char*)memcached_get(memc,szCookieValue,nGetKeyLen,&nGetLen,&flags,&rc)) {
-       memcached_free(memc);
-       ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r,LOGTAG_PREFIX  "memcached_get failed to found key '%s'",szCookieValue);
-       return NULL;
+        if(rc == MEMCACHED_SUCCESS) {
+            ap_log_rerror(APLOG_MARK,APLOG_DEBUG|APLOG_NOERRNO, 0,r, LOGTAG_PREFIX
+                    "memcached_get did not return data for key '%s'",szCookieValue);
+        } else {
+            ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX
+                    "memcached_get call failed: %s", memcached_last_error_message(memc));
+        }
+        if(conf->nAuth_memCookie_SASLAuth) {
+            rc = memcached_destroy_sasl_auth_data(memc);
+            if(rc != MEMCACHED_SUCCESS) {
+                ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX
+                        "Failed to free SASL auth data: %s", memcached_last_error_message(memc));
+            }
+        }
+        memcached_free(memc);
+        return NULL;
     }
 
     /* dup szValue in pool */
@@ -273,8 +296,15 @@ static apr_table_t *Auth_memCookie_get_session(request_rec *r, strAuth_memCookie
     if (!szValue) free(szValue);
 
     /* free the libmemcached session */
+    if(conf->nAuth_memCookie_SASLAuth) {
+        rc = memcached_destroy_sasl_auth_data(memc);
+        if(rc != MEMCACHED_SUCCESS) {
+            ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX
+                    "Failed to free SASL auth data: %s", memcached_last_error_message(memc));
+        }
+    }
     memcached_free(memc);
-    
+
     /* set the good username found in request structure */
     if (pMySession!=NULL&&apr_table_get(pMySession,"UserName")!=NULL) r->user=(char*)apr_table_get(pMySession,"UserName");
 
@@ -852,6 +882,9 @@ static void *create_Auth_memCookie_dir_config(apr_pool_t *p, char *d)
     conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix = apr_pstrdup(p,"MCAC_"); 
     conf->nAuth_memCookie_SessionTableSize=10; /* Max number of element in session information table, 10 by default */
     conf->nAuth_memCookie_disable_no_store=0; /* no store cache option are the default */
+    conf->nAuth_memCookie_SASLAuth = 0; /* Disabled by default */
+    conf->szAuth_memCookie_SASLUsername = apr_pstrdup(p, "user");
+    conf->szAuth_memCookie_SASLPassword = apr_pstrdup(p, "pass");
 
     return conf;
 }
@@ -926,6 +959,19 @@ static const command_rec Auth_memCookie_cmds[] =
      "the login screen. This allows the browser to cache the credentials, but "
      "at the risk of it being possible for the login form to be resubmitted "
      "and revealed to the backend server through XSS. Use at own risk."),
+    AP_INIT_FLAG ("Auth_memCookie_SASLAuth", ap_set_flag_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SASLAuth),
+     OR_AUTHCFG, "Set to 'on' to use SASL authentication. If this is set then "
+     "Auth_memCookie_SASLUsername and Auth_memCookie_SASLPassword should also be set. "
+     "Set to 'off' by default"),
+    AP_INIT_TAKE1("Auth_memCookie_SASLUsername", ap_set_string_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SASLUsername),
+     OR_AUTHCFG, "User name to use for SASL authentication to memcached. "
+     "Set to 'user' by default"),
+    AP_INIT_TAKE1("Auth_memCookie_SASLPassword", ap_set_string_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SASLPassword),
+     OR_AUTHCFG, "Password to use for SASL authentication to memcached. "
+     "Set to 'pass' by default"),
     {NULL}
 };
 
