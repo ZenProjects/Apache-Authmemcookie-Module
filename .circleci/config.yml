@@ -12,6 +12,9 @@ jobs:
             name: libmemcached version
             command: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
         - run:
+            name: apache2 version
+            command: dpkg -s apache2-dev && dpkg -L apache2-dev
+        - run:
             name: autogen
             command: autoconf -f
         - run:
@@ -35,6 +38,9 @@ jobs:
             name: libmemcached version
             command: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
         - run:
+            name: apache2 version
+            command: dpkg -s apache2-dev && dpkg -L apache2-dev
+        - run:
             name: autogen
             command: autoconf -f
         - run:
@@ -45,7 +51,7 @@ jobs:
             command: make  && ls -al .libs/mod_auth_memcookie.so
         - run:
             name: install
-            command: make install && apache2ctl configtest
+            command: make install && apache2ctl configtest 
  
 workflows:
   version: 2
