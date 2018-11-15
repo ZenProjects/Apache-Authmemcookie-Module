@@ -1,0 +1,7 @@
+#ifndef MOD_AUTH_MEMCOOKIE_H
+#define MOD_AUTH_MEMCOOKIE_H
+
+// if sasl is defined
+#undef HAVE_MEMCACHED_SASL
+
+#endif

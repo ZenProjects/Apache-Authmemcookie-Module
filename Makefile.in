@@ -16,4 +16,4 @@ clean:
 	-rm -rf autom4te.cache .libs 
 
 distclean: clean
-	-rm -f config.log config.status Makefile 
+	-rm -f config.log config.status Makefile mod_auth_memcookie.h configure

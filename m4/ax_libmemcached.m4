@@ -30,6 +30,15 @@ AC_DEFUN([LIBMEMCACHED_WITH],[
     fi
     LIBMEMCACHED_DIR=$with_libmemcached
   fi
+  AC_MSG_CHECKING(for libmemcached sasl)
+  if test "$with_libmemcached" != "no"; then
+    if test -e $LIBMEMCACHED_INCLUDE_DIR/libmemcached-1.0/sasl.h; then
+      AC_DEFINE(HAVE_MEMCACHED_SASL, 1, [Have SASL support])
+      AC_MSG_RESULT(found!)
+    else
+      AC_MSG_ERROR(not found.)
+    fi
+  fi
   AC_SUBST(LIBMEMCACHED_DIR) 
   AC_SUBST(LIBMEMCACHED_INCLUDE_DIR) 
   AC_SUBST(LIBMEMCACHED_LIB_DIR) 
