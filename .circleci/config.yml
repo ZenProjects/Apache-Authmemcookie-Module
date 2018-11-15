@@ -1,6 +1,6 @@
 version: 2
 jobs:
-    build:
+    build-debian-latest:
       docker:
         - image: debian:latest
       steps:
@@ -20,7 +20,7 @@ jobs:
         - run:
             name: build
             command: make  && ls -al .libs/mod_auth_memcookie.so
-    build:
+    build-ubuntu-14:
       docker:
         - image: ubuntu:14.04
       steps:
@@ -40,3 +40,10 @@ jobs:
         - run:
             name: build
             command: make  && ls -al .libs/mod_auth_memcookie.so
+ 
+workflows:
+  version: 2
+  multiple_os_build:
+    jobs:
+      - build-debian-latest
+      - build-ubuntu-14
