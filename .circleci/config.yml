@@ -13,7 +13,7 @@ jobs:
             command: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
         - run:
             name: apache2 version
-            command: dpkg -s apache2-dev && dpkg -L apache2-dev
+            command: dpkg -s apache2 && dpkg -L apache2-dev && dpkg -L apache2
         - run:
             name: autogen
             command: autoconf -f
@@ -39,7 +39,7 @@ jobs:
             command: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
         - run:
             name: apache2 version
-            command: dpkg -s apache2-dev && dpkg -L apache2-dev
+            command: dpkg -s apache2 && dpkg -L apache2-dev && dpkg -L apache2
         - run:
             name: autogen
             command: autoconf -f
