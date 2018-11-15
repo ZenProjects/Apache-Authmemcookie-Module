@@ -21,6 +21,7 @@ jobs:
         - run:
             name: build
             command: make  && ls -al .libs/mod_auth_memcookie.so
+jobs:
   ubuntu-14:
     build:
       docker:
