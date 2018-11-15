@@ -20,6 +20,9 @@ jobs:
         - run:
             name: build
             command: make  && ls -al .libs/mod_auth_memcookie.so
+        - run:
+            name: install
+            command: make install && apache2ctl configtest
     build-ubuntu-14:
       docker:
         - image: ubuntu:14.04
@@ -40,6 +43,9 @@ jobs:
         - run:
             name: build
             command: make  && ls -al .libs/mod_auth_memcookie.so
+        - run:
+            name: install
+            command: make install && apache2ctl configtest
  
 workflows:
   version: 2
