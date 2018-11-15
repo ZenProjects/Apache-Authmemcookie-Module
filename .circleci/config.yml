@@ -19,7 +19,7 @@ jobs:
           command: ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr && cat mod_auth_memcookie.h || cat config.log  
       - run:
           name: build
-          command: make 
+          command: make  && ls -al .libs/mod_auth_memcookie.so
       - run:
           name: install
           command: make install
