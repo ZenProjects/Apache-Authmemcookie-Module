@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: debian:latest
+    steps:
+      - checkout
+      - run:
+          name: pre 
+          command: apt-get update && apt-get install -y gcc apache2-dev libphp5-embed php5-dev libmemcached-dev autoconf 
+      - run:
+          name: libmemcached version
+          command: dpkg -L libmemcached-dev
+      - run:
+          name: autogen
+          command: autoconf -f
+      - run:
+          name: autoconf
+          command: ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr || cat config.log  
+      - run:
+          name: build
+          command: make 
+      - run:
+          name: install
+          command: make install
+
+
+
+
+
+
+
+
