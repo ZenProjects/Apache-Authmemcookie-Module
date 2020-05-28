@@ -62,8 +62,9 @@ typedef struct {
     int 	nAuth_memCookie_MemcacheObjectExpiryReset;
 
     int 	nAuth_memCookie_SetSessionHTTPHeader;
-    int 	nAuth_memCookie_SetSessionHTTPHeaderEncode;
-    char *	szAuth_memCookie_SetSessionHTTPHeaderPrefix;
+    int 	nAuth_memCookie_SetSessionSubprocessEnv;
+    int 	nAuth_memCookie_SetSessionEncode;
+    char *	szAuth_memCookie_SetSessionPrefix;
     int 	nAuth_memCookie_SessionTableSize;
 
     char *	szAuth_memCookie_CookieName;
@@ -359,6 +360,50 @@ char* strupr(char* s)
     return s;
 }
 
+/**************************************************************
+ *
+ * Auth_memCookie_DoSetSubprocessEnv
+ *
+ * Set session information in the subprocess environment table
+ *
+ *************************************************************/
+static int Auth_memCookie_DoSetSubprocessEnv(void *rec, const char *szKey, const char *szValue)
+{
+    strAuth_memCookie_config_rec *conf = NULL;
+    request_rec *r                     = (request_rec*)rec;
+    char *szKeyName                    = NULL;
+    char *szKeyValue                   = NULL;
+
+    /* get apache config */
+    conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
+
+    /* prefix each variable with "szAuth_memCookie_SetSessionPrefix" (by default MCAC_) */
+    szKeyName = apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,szKey,NULL);
+    strupr(szKeyName);
+
+    if (conf->nAuth_memCookie_SetSessionEncode) {
+      /* alloc memory for the estimated encode size of the string */
+      szKeyValue = (char*)apr_palloc(r->pool,apr_base64_encode_len(strlen(szValue))+1);
+      unless (szKeyValue) {
+	ap_log_rerror(APLOG_MARK, APLOG_ERR|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "memory alloc for encoding subprocess env failed!");
+	return 0;
+      }
+
+      /* encode string in base64 format */
+      apr_base64_encode(szKeyValue,szValue,strlen(szValue));
+    }
+    else
+    {
+      szKeyValue = (char*)szValue;
+    }
+
+    /* set key in subprocess environment */
+    apr_table_setn(r->subprocess_env,szKeyName,szKeyValue);
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Set subprocess env %s=%s", szKeyName,szKeyValue);
+
+    return 1;
+}
+
 /***************************************************************
  *
  * Auth_memCookie_DoSetHeader
@@ -375,11 +420,11 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
     /* get apache config */
     conf = ap_get_module_config(r->per_dir_config, &mod_auth_memcookie_module);
 
-    /* prefix each variable with "szAuth_memCookie_SetSessionHTTPHeaderPrefix" (by default MCAC_) */
-    char*szHeaderName=apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,szKey,NULL);
+    /* prefix each variable with "szAuth_memCookie_SetSessionPrefix" (by default MCAC_) */
+    char*szHeaderName=apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,szKey,NULL);
     strupr(szHeaderName);
 
-    if (conf->nAuth_memCookie_SetSessionHTTPHeaderEncode) {
+    if (conf->nAuth_memCookie_SetSessionEncode) {
       /* alloc memory for the estimated encode size of the string */
       szB64_enc_string=(char*)apr_palloc(r->pool,apr_base64_encode_len(strlen(szValue))+1);
       unless (szB64_enc_string) {
@@ -391,14 +436,12 @@ static int Auth_memCookie_DoSetHeader(void*rec,const char *szKey, const char *sz
       apr_base64_encode(szB64_enc_string,szValue,strlen(szValue));
 
       /* set string header */
-      apr_table_setn(r->subprocess_env,szHeaderName,(char*)szB64_enc_string);
       apr_table_setn(r->headers_in,szHeaderName,(char*)szB64_enc_string);
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szB64_enc_string);
     }
     else
     {
       /* set string header */
-      apr_table_setn(r->subprocess_env,szHeaderName,(char*)szValue);
       apr_table_setn(r->headers_in,szHeaderName,(char*)szValue);
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "Send HTTP Header %s=%s", szHeaderName,szValue);
     }
@@ -540,28 +583,26 @@ static int Auth_memCookie_check_cookie(request_rec *r)
        }
     }
 
+    /* add session data to the subprocess environment */
+    if (conf->nAuth_memCookie_SetSessionSubprocessEnv) {
+       ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionSubprocessEnv is set then set subprocess environment...");
+       apr_table_do(Auth_memCookie_DoSetSubprocessEnv,r,pAuthSession,NULL);
+       apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,"SESSIONKEY",NULL),szCookieValue);
+       apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionPrefix);
+       apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
+       apr_table_setn(r->subprocess_env,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
+    }
+
     /* send http header of the session value to the backend */
     if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
        ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionHTTPHeader is set then send http header...");
        apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
+       apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,"SESSIONKEY",NULL),szCookieValue);
+       apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionPrefix);
+       apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","yes");
+       apr_table_setn(r->headers_in,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
     }
 
-    /* set MCAC_SESSIONKEY var for scripts language */
-    apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
-    apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
-
-    /* HTTP Header Prefix */
-    apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
-    apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
-
-    /* cookie found the user is authentified */
-    apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","yes");
-    apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","yes");
-
-    /* set REMOTE_USER var for scripts language */
-    apr_table_setn(r->subprocess_env,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
-    apr_table_setn(r->headers_in,"REMOTE_USER",apr_table_get(pAuthSession,"UserName"));
-    
     /* log authorisation ok */
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "authentication ok");
 
@@ -610,23 +651,23 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
 	  return nReturn;
       }
 
+      /* set session data in the subprocess environment */
+      if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
+	 ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionSubprocessEnv is set then set subprocess environment...");
+	 apr_table_do(Auth_memCookie_DoSetSubprocessEnv,r,pAuthSession,NULL);
+         apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,"SESSIONKEY",NULL),szCookieValue);
+         apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionPrefix);
+         apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","no");
+      }
+
       /* send http header of the session value to the backend */
       if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
 	 ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionHTTPHeader is set then send http header...");
 	 apr_table_do(Auth_memCookie_DoSetHeader,r,pAuthSession,NULL);
+         apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,"SESSIONKEY",NULL),szCookieValue);
+         apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionPrefix);
+         apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","no");
       }
-
-      /* set MCAC_SESSIONKEY var for scripts language */
-      apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
-      apr_table_setn(r->headers_in, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix,"SESSIONKEY",NULL),szCookieValue);
-    
-      /* HTTP Header Prefix */
-      apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
-      apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_PREFIX",conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix);
-
-      /* cookie found but they are in public zone */
-      apr_table_setn(r->subprocess_env,"AUTHMEMCOOKIE_AUTH","no");
-      apr_table_setn(r->headers_in,"AUTHMEMCOOKIE_AUTH","no");
 
     }
     return nReturn;
@@ -891,8 +932,9 @@ static void *create_Auth_memCookie_dir_config(apr_pool_t *p, char *d)
     conf->nAuth_memCookie_Authoritative = 1;  /* is set by default */
     conf->nAuth_memCookie_authbasicfix = 1;  /* fix header for php auth by default */
     conf->nAuth_memCookie_SetSessionHTTPHeader = 0; /* set session information in http header of authenticated user */
-    conf->nAuth_memCookie_SetSessionHTTPHeaderEncode = 0; /* encode http header groups value by default */
-    conf->szAuth_memCookie_SetSessionHTTPHeaderPrefix = apr_pstrdup(p,"MCAC_"); 
+    conf->nAuth_memCookie_SetSessionSubprocessEnv = 0; /* set session information in subprocess env of authenticated user */
+    conf->nAuth_memCookie_SetSessionEncode = 0; /* encode headers / session env values by default */
+    conf->szAuth_memCookie_SetSessionPrefix = apr_pstrdup(p,"MCAC_"); 
     conf->nAuth_memCookie_SessionTableSize=10; /* Max number of element in session information table, 10 by default */
     conf->nAuth_memCookie_disable_no_store=0; /* no store cache option are the default */
 #ifdef HAVE_MEMCACHED_SASL
@@ -945,12 +987,15 @@ static const command_rec Auth_memCookie_cmds[] =
     AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeader", ap_set_flag_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeader),
      OR_AUTHCFG, "Set to 'on' to set session information to http header of the authenticated users, is set 'off' by default"),
-    AP_INIT_FLAG ("Auth_memCookie_SetSessionHTTPHeaderEncode", ap_set_flag_slot,
-     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionHTTPHeaderEncode),
-     OR_AUTHCFG, "Set to 'on' to mime64 encode session information to http header, is set 'off' by default"),
-    AP_INIT_TAKE1("Auth_memCookie_SetSessionHTTPHeaderPrefix", ap_set_string_slot,
-     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SetSessionHTTPHeaderPrefix),
-     OR_AUTHCFG, "Set HTTP header prefix - set to 'MCAC_' by default"),
+    AP_INIT_FLAG ("Auth_memCookie_SetSessionSubprocessEnv", ap_set_flag_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionSubprocessEnv),
+     OR_AUTHCFG, "Set to 'on' to set session information to subprocess environment of the authenticated users, is set 'off' by default"),
+    AP_INIT_FLAG ("Auth_memCookie_SetSessionEncode", ap_set_flag_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, nAuth_memCookie_SetSessionEncode),
+     OR_AUTHCFG, "Set to 'on' to mime64 encode session information to http header / subprocess environment, is set 'off' by default"),
+    AP_INIT_TAKE1("Auth_memCookie_SetSessionPrefix", ap_set_string_slot,
+     (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_SetSessionPrefix),
+     OR_AUTHCFG, "Set session data key name prefix - set to 'MCAC_' by default"),
     AP_INIT_TAKE1("Auth_memCookie_CookieName", ap_set_string_slot,
      (void *)APR_OFFSETOF(strAuth_memCookie_config_rec, szAuth_memCookie_CookieName),
      OR_AUTHCFG, "Name of cookie to set"),
@@ -1003,3 +1048,5 @@ module AP_MODULE_DECLARE_DATA mod_auth_memcookie_module =
     Auth_memCookie_cmds,              /* command apr_table_t */
     register_hooks              /* register hooks */
 };
+
+/* vim: set noexpandtab tabstop=8 shiftwidth=2 : */
