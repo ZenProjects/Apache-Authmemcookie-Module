@@ -652,7 +652,7 @@ static authz_status Auth_memCookie_public_authz_checker(request_rec *r, const ch
       }
 
       /* set session data in the subprocess environment */
-      if (conf->nAuth_memCookie_SetSessionHTTPHeader) {
+      if (conf->nAuth_memCookie_SetSessionSubprocessEnv) {
 	 ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, 0, r, LOGTAG_PREFIX "nAuth_memCookie_SetSessionSubprocessEnv is set then set subprocess environment...");
 	 apr_table_do(Auth_memCookie_DoSetSubprocessEnv,r,pAuthSession,NULL);
          apr_table_setn(r->subprocess_env, apr_pstrcat(r->pool,conf->szAuth_memCookie_SetSessionPrefix,"SESSIONKEY",NULL),szCookieValue);
