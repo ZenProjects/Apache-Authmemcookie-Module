@@ -258,7 +258,7 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
     </Location>
     ```
 
-- **[Require valide-user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)** and **[Require user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)**
+- **[Require valid-user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)** and **[Require user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html#requiredirectives)**
 
     All the two a provided by [mod_authz_user](https://httpd.apache.org/docs/2.4/mod/mod_authz_user.html) core apache module.
 
