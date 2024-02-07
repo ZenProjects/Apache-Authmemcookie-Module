@@ -154,15 +154,21 @@ This option can be used in `location` or `directory` apache context.
 
     Set to `on` to set session information to http header of the authenticated users, is set to `off` by default.
     Each session field are sended to backend. 
-    Each session field name are prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix` changed to uppercase.
+    Each session field name are prefixed by `Auth_memCookie_SetSessionPrefix` changed to uppercase.
 
-- **Auth_memCookie_SetSessionHTTPHeaderEncode**
+- **Auth_memCookie_SetSessionSubprocessEnv**
 
-    Set to `on` to mime64 encode session information to http header, is set to `off` by default.
+    Set to `on` to set session information to subprocess environment of the authenticated users, is set to `off` by default.
+    Each session field is set in the local web server environment.
+    Each session field name are prefixed by `Auth_memCookie_SetSessionPrefix` changed to uppercase.
 
-- **Auth_memCookie_SetSessionHTTPHeaderPrefix** 
+- **Auth_memCookie_SetSessionEncode**
 
-    Set HTTP header prefix, is set to `MCAC_` by default.
+    Set to `on` to mime64 encode session information to http header and subprocess environment, is set to `off` by default.
+
+- **Auth_memCookie_SetSessionPrefix** 
+
+    Set prefix for header and subprocess environment key names, is set to `MCAC_` by default.
 
 - **Auth_memCookie_CookieName**
 
@@ -216,10 +222,10 @@ This option can be used in `location` or `directory` apache context.
 The application recieve this information: 
 
 - `REMOTE_USER` are set to the user logged name
-- `AUTHMEMCOOKIE_PREFIX` are set to value of `Auth_memCookie_SetSessionHTTPHeaderPrefix`
+- `AUTHMEMCOOKIE_PREFIX` are set to value of `Auth_memCookie_SetSessionPrefix`
 - `AUTHMEMCOOKIE_AUTH` are set to `yes` when protected, `no` when in public zone.
 
-And all session field (prefixed by `Auth_memCookie_SetSessionHTTPHeaderPrefix`/`AUTHMEMCOOKIE_PREFIX`) if `Auth_memCookie_SetSessionHTTPHeader` is `on`.
+And all session field (prefixed by `Auth_memCookie_SetSessionPrefix`/`AUTHMEMCOOKIE_PREFIX`) if `Auth_memCookie_SetSessionHTTPHeader` or `Auth_memCookie_SetSessionSubprocessEnv` is `on`.
 
 And if `Auth_memCookie_SilmulateAuthBasic` is set, they recieve also this `$_SERVER` variable : 
 
@@ -250,7 +256,7 @@ The module add some [`Require`/`authz`](https://httpd.apache.org/docs/2.4/mod/mo
 
     They make possible to specify public access zone.
     
-    In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` flag.
+    In that zone authenticated or not are granted but authenticated can send session information to backend depend on `Auth_memCookie_SetSessionHTTPHeader` and `Auth_memCookie_SetSessionSubprocessEnv` flags.
 
     ```
     <Location /publiczone>
