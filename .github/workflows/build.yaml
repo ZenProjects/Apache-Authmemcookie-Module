@@ -1,0 +1,35 @@
+name: Build CI
+
+on: [push, pull_request]
+
+jobs:
+  build-noble:
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      TZ: Europe/Paris 
+
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: setup os 
+      run: | 
+        apt-get update && apt-get install -y software-properties-common
+        apt-get -y install libz-dev wget \
+                   libphp7.4-embed php7.4-dev autoconf automake gcc make \
+                   libpcre3-dev libbz2-dev libbz2-dev libxml2-dev libkrb5-dev \
+                   libargon2-dev libargon2-1 libsodium-dev
+    - name: Apache AuthMemeCookie Module - libmemcache version
+      run: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
+    - name: Apache AuthMemeCookie Module - Apache HTTPD Version
+      run: dpkg -s apache2 && dpkg -L apache2-dev && dpkg -L apache2
+    - name: Apache AuthMemeCookie Module - configure
+      run: |
+        autoconf -f 
+        ./configure --with-apxs=/usr/bin/apxs --with-libmemcached=/usr || (cat config.log; exit 1)
+        cat mod_auth_memcookie.h
+    - name: Apache AuthMemeCookie Module - make
+      run: make && ls -al .libs/mod_auth_memcookie.so
+    - name: Apache AuthMemeCookie Module - install
+      run:  make install && apache2ctl configtest   
