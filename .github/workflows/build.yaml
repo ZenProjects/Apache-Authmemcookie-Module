@@ -16,10 +16,9 @@ jobs:
     - name: setup os 
       run: | 
         apt-get update && apt-get install -y software-properties-common
-        apt-get -y install libz-dev wget \
-                   libphp7.4-embed php7.4-dev autoconf automake gcc make \
-                   libpcre3-dev libbz2-dev libbz2-dev libxml2-dev libkrb5-dev \
-                   libargon2-dev libargon2-1 libsodium-dev
+        apt-get -y install wget \
+                   autoconf automake gcc make \
+                   apache2 apache2-dev memcached libmemcached-dev  
     - name: Apache AuthMemeCookie Module - libmemcache version
       run: dpkg -s libmemcached-dev && dpkg -L libmemcached-dev
     - name: Apache AuthMemeCookie Module - Apache HTTPD Version
